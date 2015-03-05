@@ -1,5 +1,5 @@
 context("rrlite")
 
 test_that("loaded", {
-  expect_that(x <- .C("rrlite_test"), prints_text("hello world"))
+  expect_that(test_rlite_noop(":memory:", 0), is_null())
 })

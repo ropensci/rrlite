@@ -1,5 +1,4 @@
 # -*-makefile-*-
-
 # Compared with jqr, rlite is not yet versioned, but we also want to
 # hit the directory with useful bits.
 RLITE_DIR = rlite/src
