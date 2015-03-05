@@ -1,0 +1,6 @@
+.Rproj.user
+.Rhistory
+.RData
+src/rlite
+src/*.o
+src/*.so

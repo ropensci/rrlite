@@ -1,0 +1,6 @@
+^src/rlite/.travis.yml$
+^Makefile$
+bootstrap.sh
+rrlite.Rproj
+rrlite_.*.tar.gz
+^.travis.yml$

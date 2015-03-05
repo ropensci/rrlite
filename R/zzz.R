@@ -1,0 +1,2 @@
+##' @useDynLib rrlite
+NULL
