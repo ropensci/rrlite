@@ -5,3 +5,7 @@ test_rlite_noop <- function(ip, port) {
     invisible(.Call('rrlite_test_rlite_noop', PACKAGE = 'rrlite', ip, port))
 }
 
+test_rlite_add <- function(ip) {
+    invisible(.Call('rrlite_test_rlite_add', PACKAGE = 'rrlite', ip))
+}
+

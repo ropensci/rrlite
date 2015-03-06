@@ -1,7 +1,3 @@
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 // I can't directly include the Rcpp code because of either C99
 // features that the compiler grumbles about or function pointers.
 //
@@ -11,7 +7,19 @@ extern "C" {
 //
 // For now we'll just open and close the database each time, which
 // might suffer a performance cost, but should also simplify the code.
-void rlite_noop(const char * ip, int port);
+//
+// Without providing a handle though, it's not possible to create
+// persistent memory databases.  That's not great, but whatever for
+// now; getting things in and out is the main aim.
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+  void rlite_noop(const char * ip, int port);
+  // void rlite_add(const char * ip);
+  void rlite_test_add(const char * ip);
+  // void rlite_test_write(const char * ip);
 
 #ifdef __cplusplus
 } // closing brace for extern "C"

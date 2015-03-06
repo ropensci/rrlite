@@ -18,3 +18,15 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// test_rlite_add
+void test_rlite_add(std::string ip);
+RcppExport SEXP rrlite_test_rlite_add(SEXP ipSEXP) {
+BEGIN_RCPP
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< std::string >::type ip(ipSEXP );
+        test_rlite_add(ip);
+    }
+    return R_NilValue;
+END_RCPP
+}
