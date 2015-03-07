@@ -30,3 +30,46 @@ BEGIN_RCPP
     return R_NilValue;
 END_RCPP
 }
+// test_rlite_db
+SEXP test_rlite_db(std::string filename);
+RcppExport SEXP rrlite_test_rlite_db(SEXP filenameSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP );
+        SEXP __result = test_rlite_db(filename);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}
+// test_rlite_write
+void test_rlite_write(std::string filename, SEXP command);
+RcppExport SEXP rrlite_test_rlite_write(SEXP filenameSEXP, SEXP commandSEXP) {
+BEGIN_RCPP
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP );
+        Rcpp::traits::input_parameter< SEXP >::type command(commandSEXP );
+        test_rlite_write(filename, command);
+    }
+    return R_NilValue;
+END_RCPP
+}
+// test_rlite_read
+SEXP test_rlite_read(std::string filename);
+RcppExport SEXP rrlite_test_rlite_read(SEXP filenameSEXP) {
+BEGIN_RCPP
+    SEXP __sexp_result;
+    {
+        Rcpp::RNGScope __rngScope;
+        Rcpp::traits::input_parameter< std::string >::type filename(filenameSEXP );
+        SEXP __result = test_rlite_read(filename);
+        PROTECT(__sexp_result = Rcpp::wrap(__result));
+    }
+    UNPROTECT(1);
+    return __sexp_result;
+END_RCPP
+}

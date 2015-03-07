@@ -11,6 +11,7 @@
 // Without providing a handle though, it's not possible to create
 // persistent memory databases.  That's not great, but whatever for
 // now; getting things in and out is the main aim.
+#include <Rinternals.h> // SEXP
 
 #ifdef __cplusplus
 extern "C" {
@@ -20,6 +21,10 @@ extern "C" {
   // void rlite_add(const char * ip);
   void rlite_test_add(const char * ip);
   // void rlite_test_write(const char * ip);
+  SEXP rlite_test_db(const char * filename);
+
+  SEXP rlite_read(const char* filename);
+  SEXP rlite_write(const char* filename, SEXP command);
 
 #ifdef __cplusplus
 } // closing brace for extern "C"

@@ -9,3 +9,15 @@ test_rlite_add <- function(ip) {
     invisible(.Call('rrlite_test_rlite_add', PACKAGE = 'rrlite', ip))
 }
 
+test_rlite_db <- function(filename) {
+    .Call('rrlite_test_rlite_db', PACKAGE = 'rrlite', filename)
+}
+
+test_rlite_write <- function(filename, command) {
+    invisible(.Call('rrlite_test_rlite_write', PACKAGE = 'rrlite', filename, command))
+}
+
+test_rlite_read <- function(filename) {
+    .Call('rrlite_test_rlite_read', PACKAGE = 'rrlite', filename)
+}
+

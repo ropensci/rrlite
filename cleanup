@@ -1,2 +1,2 @@
 #!/bin/sh
-make -C src/rlite/src clean
+# make -C src/rlite/src clean
