@@ -32,7 +32,7 @@ SEXP rrlite_context(SEXP filename) {
 }
 
 static void rrlite_finalize(SEXP extPtr) {
-  Rprintf("cleaning up\n");
+  // Rprintf("cleaning up\n");
   rliteFree(rrlite_get_context(extPtr));
 }
 

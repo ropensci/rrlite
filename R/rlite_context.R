@@ -17,6 +17,13 @@ rlite_context_generator <-
 
       read=function() {
         .Call("rrlite_read", self$ptr)
+      },
+
+      run=function(command) {
+        ## TODO: ensure we always read()?
+        ## TODO: Run this via .Call by not using append?
+        self$write(command)
+        self$read()
       }
     ))
 
