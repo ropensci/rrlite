@@ -50,7 +50,7 @@ SEXP rrlite_write(SEXP extPtr, SEXP command) {
   for (int i = 0; i < argc; ++i) {
     const char* cmd_r = CHAR(STRING_ELT(command, i));
     argvlen[i] = strlen(cmd_r);
-    argv[i] = (char*)R_alloc(argc, sizeof(char));
+    argv[i] = (char*)R_alloc(argvlen[i] + 1, sizeof(char));
     strcpy(argv[i], cmd_r);
   }
 
