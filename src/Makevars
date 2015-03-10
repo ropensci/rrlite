@@ -20,7 +20,8 @@ PKG_LIBS = $(LIBRLITE)
 # This is straight from R-exts and works really well - it does not
 # recompile jq or run configure very often.  Sometimes reading the
 # documentation really does pay off.
+LIB_CFLAGS = $(CFLAGS) -I../deps/lua/src/
 $(SHLIB): $(LIBRLITE)
 $(LIBRLITE):
 	(cd $(RLITE_DIR) && $(MAKE) \
-	  CC="$(CC)" CFLAGS="$(CFLAGS) $(CPICFLAGS)" AR="$(AR)" RANLIB="$(RANLIB)")
+	  CC="$(CC)" CFLAGS="$(LIB_CFLAGS) $(CPICFLAGS)" AR="$(AR)" RANLIB="$(RANLIB)")
