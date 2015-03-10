@@ -5,3 +5,5 @@ src/rlite
 src/*.o
 src/*.so
 inst/rlite.COPYING
+notes.md
+extra/redis-doc

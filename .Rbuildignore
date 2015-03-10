@@ -4,3 +4,4 @@ bootstrap.sh
 rrlite.Rproj
 rrlite_.*.tar.gz
 ^.travis.yml$
+extra
