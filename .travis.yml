@@ -8,7 +8,6 @@ before_install:
   - ./travis-tool.sh bootstrap
 
 install:
-  - ./bootstrap.sh
   - ./travis-tool.sh install_deps
   - ./travis-tool.sh github_package jimhester/covr
 

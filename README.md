@@ -52,7 +52,14 @@ con$read()
 
 # Installation
 
-To install, after cloning the repo the first time, run (from the command line)
+To install, after cloning the repo the first time, run:
+
+```
+git submodule init
+git submodule update
+```
+
+(from the command line)
 
 ```
 ./bootstrap.sh

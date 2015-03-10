@@ -1,11 +1,6 @@
 #!/bin/sh
 RLITE=src/rlite
 
-if [ ! -d $RLITE ]; then
-    echo "Cloning rlite:"
-    git clone https://github.com/seppo0010/rlite $RLITE
-fi
-
 RLITE_COPYING=inst/rlite.COPYING
 
 mkdir -p $(dirname $RLITE_COPYING)

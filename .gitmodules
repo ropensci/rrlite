@@ -1,0 +1,3 @@
+[submodule "src/rlite"]
+	path = src/rlite
+	url = https://github.com/seppo0010/rlite
