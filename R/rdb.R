@@ -8,9 +8,9 @@
 ##' r <- rdb()
 ##' r$set("foo", runif(10))
 ##' r$get("foo")
-##' r$list()
+##' r$keys()
 ##' r$del("foo")
-##' r$list()
+##' r$keys()
 rdb <- function(path=":memory:") {
   rdb_generator$new(path)
 }
@@ -33,10 +33,11 @@ rdb_generator <- R6::R6Class(
     },
 
     get=function(key) {
-      string_to_object(self$rlite$get(key))
+      ret <- self$rlite$get(key)
+      if (is.null(ret)) ret else string_to_object(ret)
     },
 
-    list=function(pattern=NULL) {
+    keys=function(pattern=NULL) {
       if (is.null(pattern)) {
         pattern <- "*"
       }

@@ -17,8 +17,8 @@ Create an rlite object
 r <- rdb()
 r$set("foo", runif(10))
 r$get("foo")
-r$list()
+r$keys()
 r$del("foo")
-r$list()
+r$keys()
 }
 

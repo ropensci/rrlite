@@ -1,4 +1,4 @@
-context("context")
+context("rlite_context")
 
 ## OK, there's a memory leak somewhere through here.
 test_that("db:keys", {

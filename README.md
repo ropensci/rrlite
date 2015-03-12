@@ -37,7 +37,7 @@ This does not do serialisation/deserialisation, so you're on your own with getti
 ## Low level
 
 ```r
-con <- rrlite:::rlite_context(":memory:")
+con <- rlite_context(":memory:")
 con$run(c("set", "foo", "bar"))
 ```
 

@@ -1,3 +1,17 @@
+##' Create an \code{rlite_context} object
+##' @title Create an rlite_context object
+##' @param path Path to a persistent object or the magic string
+##' \code{":memory:"} for an in-memory database.
+##' @export
+##' @importFrom R6 R6Class
+##' @examples
+##' r <- rlite_context()
+##' r$run(c("SET", "foo", "bar"))
+##' r$run(c("GET", "foo"))
+rlite_context <- function(path=":memory:") {
+  rlite_context_generator$new(path)
+}
+
 ##' @importFrom R6 R6Class
 rlite_context_generator <-
   R6::R6Class(
@@ -26,7 +40,3 @@ rlite_context_generator <-
         self$read()
       }
     ))
-
-rlite_context <- function(path) {
-  rlite_context_generator$new(path)
-}
