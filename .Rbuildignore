@@ -6,3 +6,5 @@ rrlite_.*.tar.gz
 ^.travis.yml$
 extra
 ^docker$
+^.*\.Rproj$
+^\.Rproj\.user$

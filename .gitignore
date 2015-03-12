@@ -7,3 +7,4 @@ inst/rlite.COPYING
 notes.md
 extra/redis-doc
 docker/
+inst/doc

@@ -5,6 +5,14 @@
 
 R interface to rlite https://github.com/seppo0010/rlite
 
+# Installation
+
+Because the source currently contains a submodule, the usual approach with `devtools::install_github` does not work, but this does:
+
+```
+devtools::install_git("https://github.com/richfitz/rrlite", args="--recursive")
+```
+
 # Usage
 
 ## High level
