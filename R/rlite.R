@@ -11,8 +11,6 @@
 rlite <- function(path=":memory:", context=NULL) {
   if (is.null(context)) {
     context <- rlite_context(path)
-  } else if (!missing(path)) {
-    stop("Do not specify path and context")
   }
   rlite_generator$new(context)
 }

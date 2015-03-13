@@ -11,8 +11,8 @@
 ##' r$keys()
 ##' r$del("foo")
 ##' r$keys()
-rdb <- function(path=":memory:") {
-  rdb_generator$new(path)
+rdb <- function(path=":memory:", context=NULL) {
+  rdb_generator$new(rlite(path, context))
 }
 
 rdb_generator <- R6::R6Class(
@@ -20,8 +20,8 @@ rdb_generator <- R6::R6Class(
   public=list(
     rlite=NULL,
 
-    initialize=function(path) {
-      self$rlite <- rlite(path)
+    initialize=function(rlite) {
+      self$rlite <- rlite
     },
 
     set=function(key, value) {

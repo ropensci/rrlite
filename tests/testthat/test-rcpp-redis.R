@@ -8,7 +8,19 @@ test_that("connection", {
 test_that("rlite(rcpp)", {
   r <- rlite(context=rcpp_redis())
   expect_that(r$PING(), equals("PONG"))
-  expect_that(r$SET("foo", "bar"), equals("OK"))
-  expect_that(r$GET("foo"), equals("bar"))
+  key <- "rlite-test:foo"
+  expect_that(r$SET(key, "bar"), equals("OK"))
+  expect_that(r$GET(key), equals("bar"))
   expect_that(r$close(), throws_error("not yet implemented"))
+  expect_that(r$context, is_a("rcpp_redis"))
+  expect_that(r$context$context, is_a("Rcpp_Redis"))
+})
+
+test_that("rdb(rcpp)", {
+  db <- rdb(context=rcpp_redis())
+  key <- "rlite-test:d"
+  db$set(key, mtcars)
+  expect_that(db$get(key), equals(mtcars))
+  expect_that(db$rlite$context, is_a("rcpp_redis"))
+  expect_that(db$rlite$context$context, is_a("Rcpp_Redis"))
 })
