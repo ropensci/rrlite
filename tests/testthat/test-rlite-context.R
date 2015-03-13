@@ -1,6 +1,25 @@
 context("rlite_context")
 
-## OK, there's a memory leak somewhere through here.
+test_that("close context", {
+  con <- rlite_context()
+  con$run("PING")
+
+  expect_that(is_null_pointer(con$ptr), is_false())
+  expect_that(con$is_closed(), is_false())
+
+  expect_that(con$close(), is_true())
+  expect_that(is_null_pointer(con$ptr), is_true())
+  expect_that(con$is_closed(), is_true())
+
+  expect_that(con$run("PING"), throws_error("Context is not connected"))
+
+  expect_that(con$close(), gives_warning("Context is not connected"))
+  expect_that(suppressWarnings(con$close()), is_false())
+  rm(con)
+  gc() # no crash, we hope.
+})
+
+## From rlite/src/tests/db.c
 test_that("db:keys", {
   con <- rlite_context(":memory:")
 

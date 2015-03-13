@@ -22,15 +22,23 @@ rlite_context_generator <-
 
       initialize=function(path) {
         self$path <- path
-        self$ptr <- .Call("rrlite_context", path)
+        self$ptr <- .Call("rrlite_context", path, PACKAGE="rrlite")
+      },
+
+      close=function() {
+        .Call("rrlite_close", self$ptr, PACKAGE="rrlite")
+      },
+
+      is_closed=function() {
+        is_null_pointer(self$ptr)
       },
 
       write=function(command) {
-        .Call("rrlite_write", self$ptr, command)
+        .Call("rrlite_write", self$ptr, command, PACKAGE="rrlite")
       },
 
       read=function() {
-        .Call("rrlite_read", self$ptr)
+        .Call("rrlite_read", self$ptr, PACKAGE="rrlite")
       },
 
       run=function(command) {

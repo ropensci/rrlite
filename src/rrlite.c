@@ -13,10 +13,21 @@
 
 static void rrlite_finalize(SEXP extPtr);
 
-rliteContext* rrlite_get_context(SEXP extPtr) {
-  rliteContext *context = (rliteContext*)R_ExternalPtrAddr(extPtr);
+SEXP is_null_pointer(SEXP extPtr) {
+  return ScalarLogical(R_ExternalPtrAddr(extPtr) == NULL);
+}
+
+rliteContext* rrlite_get_context(SEXP extPtr, int closed_action) {
+  void *context = NULL;
+  if (extPtr != R_NilValue) {
+    context = (rliteContext*)R_ExternalPtrAddr(extPtr);
+  }
   if (!context) {
-    error("Context is not connected");
+    if (closed_action == CLOSED_WARN) {
+      warning("Context is not connected");
+    } else if (closed_action == CLOSED_ERROR) {
+      error("Context is not connected");
+    }
   }
   return context;
 }
@@ -25,6 +36,8 @@ SEXP rrlite_context(SEXP filename) {
   const char * filename_c = CHAR(STRING_ELT(filename, 0));
   rliteContext *context = rliteConnect(filename_c, PORT);
   SEXP extPtr;
+  // TODO: Set tag (arg #2) to the filename, which matches one of my
+  // issues.
   PROTECT(extPtr = R_MakeExternalPtr(context, R_NilValue, R_NilValue));
   R_RegisterCFinalizer(extPtr, rrlite_finalize);
   UNPROTECT(1);
@@ -32,12 +45,25 @@ SEXP rrlite_context(SEXP filename) {
 }
 
 static void rrlite_finalize(SEXP extPtr) {
-  // Rprintf("cleaning up\n");
-  rliteFree(rrlite_get_context(extPtr));
+  rliteContext *context = rrlite_get_context(extPtr, CLOSED_PASS);
+  if (context) {
+    rliteFree(context);
+  }
+}
+
+SEXP rrlite_close(SEXP extPtr) {
+  rliteContext *context = rrlite_get_context(extPtr, CLOSED_WARN);
+  int was_open = 0;
+  if (context) {
+    was_open = 1;
+    rliteFree(context);
+    R_ClearExternalPtr(extPtr);
+  }
+  return ScalarLogical(was_open);
 }
 
 SEXP rrlite_write(SEXP extPtr, SEXP command) {
-  rliteContext *context = rrlite_get_context(extPtr);
+  rliteContext *context = rrlite_get_context(extPtr, CLOSED_ERROR);
   int argc = LENGTH(command);
   // R-exts: All of these memory allocation routines do their own
   // error-checking, so the programmer may assume that they will raise
@@ -60,7 +86,7 @@ SEXP rrlite_write(SEXP extPtr, SEXP command) {
 }
 
 SEXP rrlite_read(SEXP extPtr) {
-  return rrlite_get_reply(rrlite_get_context(extPtr));
+  return rrlite_get_reply(rrlite_get_context(extPtr, CLOSED_ERROR));
 }
 
 // TODO: I'd like to return a list of length 2: the data and the

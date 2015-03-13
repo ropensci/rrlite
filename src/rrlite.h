@@ -2,7 +2,12 @@
 #include <Rinternals.h> // SEXP
 #include <hirlite.h>
 
-rliteContext* rrlite_get_context(SEXP extPtr);
+// TODO: enum?
+#define CLOSED_PASS 0
+#define CLOSED_WARN 1
+#define CLOSED_ERROR 2
+
+rliteContext* rrlite_get_context(SEXP extPtr, int closed_action);
 SEXP rrlite_context(SEXP filename);
 static void rrlite_finalize(SEXP extPtr);
 SEXP rrlite_write(SEXP extPtr, SEXP command);

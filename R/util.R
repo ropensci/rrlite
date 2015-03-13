@@ -34,3 +34,7 @@ vcapply <- function(X, FUN, ...) {
 interleave <- function(a, b) {
   c(rbind(a, b))
 }
+
+is_null_pointer <- function(x) {
+  .Call("is_null_pointer", x, package="rrlite")
+}
