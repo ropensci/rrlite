@@ -11,7 +11,7 @@ LIBRLITE = $(RLITE_DIR)/libhirlite.a
 LIBLUA   = rlite/deps/lua/src/liblua.a
 
 # So that we can do #include <rlite.h>
-PKG_CPPFLAGS += -I$(RLITE_DIR)
+PKG_CPPFLAGS = -I$(RLITE_DIR)
 
 # This forces the compilation to include the static library; no dynaic
 # linking, which is needed as we're not installing this anywhere on

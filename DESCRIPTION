@@ -13,3 +13,4 @@ Suggests: testthat,
     knitr
 Imports: R6
 VignetteBuilder: knitr
+SystemRequirements: GNU make

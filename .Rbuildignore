@@ -1,4 +1,5 @@
 ^src/rlite/.travis.yml$
+^src/rlite/.git$
 ^Makefile$
 bootstrap.sh
 rrlite.Rproj

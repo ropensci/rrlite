@@ -52,6 +52,19 @@ rlite_generator <- R6::R6Class(
       assert_scalar(message)
       self$context$run(c("ECHO", message))
     },
+    eval=function(script, numkeys, key, arg) {
+      assert_scalar(script)
+      assert_scalar(numkeys)
+      self$context$run(c("EVAL", script, numkeys, key, arg))
+    },
+    evalsha=function(sha1, numkeys, key, arg) {
+      assert_scalar(sha1)
+      assert_scalar(numkeys)
+      self$context$run(c("EVALSHA", sha1, numkeys, key, arg))
+    },
+    exec=function() {
+      self$context$run(c("EXEC"))
+    },
     exists=function(key) {
       assert_scalar(key)
       self$context$run(c("EXISTS", key))

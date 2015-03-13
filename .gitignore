@@ -8,5 +8,4 @@ notes.md
 extra/redis-doc
 docker/
 inst/doc
-tests/testthat/test.rld
 *.rld

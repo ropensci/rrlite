@@ -268,3 +268,10 @@ test_that("db:flushdb_multidb", {
   expect_that(con$run(c("select", "0")), equals("OK"))
   expect_that(con$run(c("dbsize")), is_identical_to(1L))
 })
+
+## So, this is crazy: R, wrapping rlite, running lua script and
+## returning back lua -> rlite -> R.
+test_that("lua", {
+  res <- con$run(c("eval", "return {1,2,{3,'Hello World!'}}",  "0"))
+  expect_that(res, equals(list(1, 2, list(3, "Hello World!"))))
+})
