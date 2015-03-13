@@ -19,6 +19,32 @@ test_that("close context", {
   gc() # no crash, we hope.
 })
 
+test_that("context filename", {
+  con <- rlite_context()
+  expect_that(.Call("rrlite_filename", con$ptr), equals(con$path))
+  con$close()
+  expect_that(.Call("rrlite_filename", con$ptr), equals(con$path))
+  rm(con)
+  gc() # no crash, we hope.
+})
+
+test_that("reopen", {
+  con <- rlite_context("test.rld")
+  expect_that(file.exists("test.rld"), is_true())
+  on.exit(file.remove("test.rld"))
+  con$run(c("SET", "foo", "bar"))
+  expect_that(con$is_closed(), is_false())
+
+  con$close()
+  expect_that(con$is_closed(), is_true())
+
+  expect_that(con$run(c("GET", "foo")),
+              throws_error("Context is not connected"))
+  expect_that(con$reopen(), is_true())
+  expect_that(con$run(c("GET", "foo")), equals("bar"))
+  expect_that(con$reopen(), is_false())
+})
+
 ## From rlite/src/tests/db.c
 test_that("db:keys", {
   con <- rlite_context(":memory:")

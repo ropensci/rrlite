@@ -36,9 +36,7 @@ SEXP rrlite_context(SEXP filename) {
   const char * filename_c = CHAR(STRING_ELT(filename, 0));
   rliteContext *context = rliteConnect(filename_c, PORT);
   SEXP extPtr;
-  // TODO: Set tag (arg #2) to the filename, which matches one of my
-  // issues.
-  PROTECT(extPtr = R_MakeExternalPtr(context, R_NilValue, R_NilValue));
+  PROTECT(extPtr = R_MakeExternalPtr(context, filename, R_NilValue));
   R_RegisterCFinalizer(extPtr, rrlite_finalize);
   UNPROTECT(1);
   return extPtr;
@@ -87,6 +85,10 @@ SEXP rrlite_write(SEXP extPtr, SEXP command) {
 
 SEXP rrlite_read(SEXP extPtr) {
   return rrlite_get_reply(rrlite_get_context(extPtr, CLOSED_ERROR));
+}
+
+SEXP rrlite_filename(SEXP extPtr) {
+  return R_ExternalPtrTag(extPtr);
 }
 
 // TODO: I'd like to return a list of length 2: the data and the

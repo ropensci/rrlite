@@ -33,6 +33,18 @@ rlite_context_generator <-
         is_null_pointer(self$ptr)
       },
 
+      reopen=function() {
+        if (self$is_closed()) {
+          if (self$path == ":memory:") {
+            stop("Can't reopen :memory: databases - it is gone :(")
+          }
+          self$ptr <- .Call("rrlite_context", self$path, PACKAGE="rrlite")
+          TRUE
+        } else {
+          FALSE
+        }
+      },
+
       write=function(command) {
         .Call("rrlite_write", self$ptr, command, PACKAGE="rrlite")
       },
