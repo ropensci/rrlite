@@ -2,6 +2,7 @@
 
 S3method("$",rlite)
 export(object_to_string)
+export(rcpp_redis)
 export(rdb)
 export(redis_commands)
 export(redis_commands_groups)
