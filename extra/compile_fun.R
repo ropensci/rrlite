@@ -145,6 +145,15 @@ rlite_generator <- R6::R6Class(
 {{{methods}}},
     initialize=function(path) {
       self$context <- rlite_context(path)
+    },
+    close=function() {
+      self$context$close()
+    },
+    is_closed=function() {
+      self$context$is_closed()
+    },
+    reopen=function() {
+      self$context$reopen()
     }))'
 
   args <- lapply(cmds, function(x) as.data.frame(x$arguments))

@@ -46,12 +46,16 @@ rdb_generator <- R6::R6Class(
 
     del=function(key) {
       invisible(self$rlite$del(key) == 1L)
+    },
+
+    ## I wonder if these are better dealt with using S3 methods?
+    close=function() {
+      self$rlite$close()
+    },
+    is_closed=function() {
+      self$rlite$is_closed()
+    },
+    reopen=function() {
+      self$rlite$reopen()
     }
   ))
-
-object_to_string <- function(x) {
-  rawToChar(serialize(x, NULL, TRUE))
-}
-string_to_object <- function(s) {
-  unserialize(charToRaw(s))
-}
