@@ -8,8 +8,13 @@
 ##' r <- rlite()
 ##' r$SET("foo", "bar")
 ##' r$GET("foo")
-rlite <- function(path=":memory:") {
-  rlite_generator$new(path)
+rlite <- function(path=":memory:", context=NULL) {
+  if (is.null(context)) {
+    context <- rlite_context(path)
+  } else if (!missing(path)) {
+    stop("Do not specify path and context")
+  }
+  rlite_generator$new(context)
 }
 
 ## NOTE: The actual code is in rlite_generated.R and is automatically

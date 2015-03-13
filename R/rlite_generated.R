@@ -585,8 +585,8 @@ rlite_generator <- R6::R6Class(
       assert_scalar_or_null(aggregate)
       self$context$run(c("ZUNIONSTORE", destination, numkeys, key, weights, aggregate))
     },
-    initialize=function(path) {
-      self$context <- rlite_context(path)
+    initialize=function(context) {
+      self$context <- context
     },
     close=function() {
       self$context$close()

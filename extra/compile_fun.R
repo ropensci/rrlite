@@ -143,8 +143,8 @@ rlite_generator <- R6::R6Class(
   public=list(
     context=NULL,
 {{{methods}}},
-    initialize=function(path) {
-      self$context <- rlite_context(path)
+    initialize=function(context) {
+      self$context <- context
     },
     close=function() {
       self$context$close()
