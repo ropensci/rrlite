@@ -1,7 +1,8 @@
-##' Create an rlite object
-##' @title Create an rlite object
+##' Create an rdb object
+##' @title Create an rdb object
 ##' @param path to a persistent object or the magic string
 ##' \code{":memory:"} for an in-memory database.
+##' @param hiredis Alternative hiredis object implementation
 ##' @export
 ##' @importFrom R6 R6Class
 ##' @examples
@@ -11,21 +12,24 @@
 ##' r$keys()
 ##' r$del("foo")
 ##' r$keys()
-rdb <- function(path=":memory:", context=NULL) {
-  rdb_generator$new(rlite(path, context))
+rdb <- function(path=":memory:", hiredis=NULL) {
+  if (is.null(hiredis)) {
+    hiredis <- hirlite(path)
+  }
+  rdb_generator$new(hiredis)
 }
 
 rdb_generator <- R6::R6Class(
   "rdb",
   public=list(
-    rlite=NULL,
+    hiredis=NULL,
 
-    initialize=function(rlite) {
-      self$rlite <- rlite
+    initialize=function(hiredis) {
+      self$hiredis <- hiredis
     },
 
     set=function(key, value) {
-      ok <- self$rlite$set(key, object_to_string(value))
+      ok <- self$hiredis$set(key, object_to_string(value))
       if (ok != "OK") {
         stop("Error setting key")
       }
@@ -33,7 +37,7 @@ rdb_generator <- R6::R6Class(
     },
 
     get=function(key) {
-      ret <- self$rlite$get(key)
+      ret <- self$hiredis$get(key)
       if (is.null(ret)) ret else string_to_object(ret)
     },
 
@@ -41,21 +45,21 @@ rdb_generator <- R6::R6Class(
       if (is.null(pattern)) {
         pattern <- "*"
       }
-      as.character(unlist(self$rlite$keys(pattern)))
+      as.character(unlist(self$hiredis$keys(pattern)))
     },
 
     del=function(key) {
-      invisible(self$rlite$del(key) == 1L)
+      invisible(self$hiredis$del(key) == 1L)
     },
 
     ## I wonder if these are better dealt with using S3 methods?
     close=function() {
-      self$rlite$close()
+      self$hiredis$close()
     },
     is_closed=function() {
-      self$rlite$is_closed()
+      self$hiredis$is_closed()
     },
     reopen=function() {
-      self$rlite$reopen()
+      self$hiredis$reopen()
     }
   ))

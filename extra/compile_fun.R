@@ -138,8 +138,8 @@ read_commands <- function() {
 
 generate <- function(cmds) {
   template <- '## Automatically generated: do not edit by hand
-rlite_generator <- R6::R6Class(
-  "rlite",
+hiredis_generator <- R6::R6Class(
+  "hiredis",
   public=list(
     context=NULL,
 {{{methods}}},

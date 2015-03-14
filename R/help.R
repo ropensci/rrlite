@@ -34,5 +34,6 @@ redis_help <- function(command) {
     stop(sprintf("Command '%s' not valid", toupper(command)))
   }
   cat(paste0(dat$summary, "\n"))
-  print(args(rlite_generator$public_methods[[tolower(command)]]))
+  ## TODO: Drop initialize, close, is_closed, reopen
+  print(args(hiredis_generator$public_methods[[tolower(command)]]))
 }

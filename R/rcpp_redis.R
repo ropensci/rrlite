@@ -8,6 +8,10 @@ rcpp_redis <- function(host="127.0.0.1", port=6379) {
   rcpp_redis_generator$new(host, port)
 }
 
+hiredis <- function(host="127.0.0.1", port=6379) {
+  hiredis_generator$new(rcpp_redis(host, port))
+}
+
 ##' @importFrom R6 R6Class
 rcpp_redis_generator <- R6::R6Class(
   "rcpp_redis",

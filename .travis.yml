@@ -2,6 +2,14 @@
 
 language: c
 
+env:
+  global:
+    # Enable vignette building:
+    - R_BUILD_ARGS="--no-manual"
+    # Disable this until the dust settles:
+    # - WARNINGS_ARE_ERRORS=1
+
+# For testing against and using RcppRedis
 services:
   - redis-server
 

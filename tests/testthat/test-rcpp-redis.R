@@ -6,7 +6,7 @@ test_that("connection", {
 })
 
 test_that("rlite(rcpp)", {
-  r <- rlite(context=rcpp_redis())
+  r <- hiredis()
   expect_that(r$PING(), equals("PONG"))
   key <- "rlite-test:foo"
   expect_that(r$SET(key, "bar"), equals("OK"))
@@ -17,10 +17,11 @@ test_that("rlite(rcpp)", {
 })
 
 test_that("rdb(rcpp)", {
-  db <- rdb(context=rcpp_redis())
+  db <- rdb(hiredis=hiredis())
   key <- "rlite-test:d"
   db$set(key, mtcars)
   expect_that(db$get(key), equals(mtcars))
-  expect_that(db$rlite$context, is_a("rcpp_redis"))
-  expect_that(db$rlite$context$context, is_a("Rcpp_Redis"))
+  expect_that(db$hiredis, is_a("hiredis"))
+  expect_that(db$hiredis$context, is_a("rcpp_redis"))
+  expect_that(db$hiredis$context$context, is_a("Rcpp_Redis"))
 })

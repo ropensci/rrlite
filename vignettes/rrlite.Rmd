@@ -26,7 +26,7 @@ library(rrlite)
 There are three levels of interface built into the package, with the idea that these provide different levels of abstraction to build off.
 
 * Highest level `rdb`: This is an example of what one might build on top of `rrlite`.  It provides a very simple key/value store for saving and restoring any R object that can be serialised.
-* Medium level `rlite`: This is the main interface.  It provdes access to `r length(ls(rlite())) - 1L` `Redis` commands as a set of user-friendly R functions that do basic error checking.  This is the level that new applications would be build from, and `rdb` is built on top of `rlite`.
+* Medium level `rlite`: This is the main interface.  It provdes access to `r length(ls(hirlite())) - 1L` `Redis` commands as a set of user-friendly R functions that do basic error checking.  This is the level that new applications would be build from, and `rdb` is built on top of `rlite`.
 * Lowest level `rlite_context`: This is direct access to the `rlite` library; commands are passed unchecked, and this can work in an asynchronous mode.  The `rlite` interface is built on top of this level.
 
 # Usage
@@ -75,7 +75,7 @@ This seems really silly, but is potentially very useful.  There are file-based k
 This is the richest level, and a full demonstration is out of scope for this tutorial.  This gives you all the power of `Redis`, but you are more limited in what you can store.
 
 ```{r}
-r <- rlite()
+r <- hirlite()
 ```
 
 The `rlite` object is an [`R6`](https://github.com/wch/R6) class with many methods, corresponding to different `Redis` commands.  For example, `SET` and `GET`:
@@ -180,7 +180,7 @@ Because `rrlite` exposes all of `rlite`, you can roll your own data structures.
 First, a generator object that sets up a new list at `key` within the database `r`.
 
 ```{r}
-rlist <- function(..., key=NULL, r=rlite(":memory:")) {
+rlist <- function(..., key=NULL, r=hirlite(":memory:")) {
   if (is.null(key)) {
     key <- paste(sample(letters, 32, replace=TRUE), collapse="")
   }

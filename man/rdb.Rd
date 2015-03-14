@@ -2,16 +2,18 @@
 % Please edit documentation in R/rdb.R
 \name{rdb}
 \alias{rdb}
-\title{Create an rlite object}
+\title{Create an rdb object}
 \usage{
-rdb(path = ":memory:")
+rdb(path = ":memory:", hiredis = NULL)
 }
 \arguments{
 \item{path}{to a persistent object or the magic string
 \code{":memory:"} for an in-memory database.}
+
+\item{hiredis}{Alternative hiredis object implementation}
 }
 \description{
-Create an rlite object
+Create an rdb object
 }
 \examples{
 r <- rdb()
