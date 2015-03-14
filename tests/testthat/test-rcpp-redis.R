@@ -1,7 +1,7 @@
-context("rcpp_redis")
+context("rlite + RcppRedis")
 
 test_that("connection", {
-  con <- rcpp_redis()
+  con <- redis_context()
   expect_that(con$run("PING"), equals("PONG"))
 })
 
@@ -12,7 +12,7 @@ test_that("rlite(rcpp)", {
   expect_that(r$SET(key, "bar"), equals("OK"))
   expect_that(r$GET(key), equals("bar"))
   expect_that(r$close(), throws_error("not yet implemented"))
-  expect_that(r$context, is_a("rcpp_redis"))
+  expect_that(r$context, is_a("redis_context"))
   expect_that(r$context$context, is_a("Rcpp_Redis"))
 })
 
@@ -22,6 +22,6 @@ test_that("rdb(rcpp)", {
   db$set(key, mtcars)
   expect_that(db$get(key), equals(mtcars))
   expect_that(db$hiredis, is_a("hiredis"))
-  expect_that(db$hiredis$context, is_a("rcpp_redis"))
+  expect_that(db$hiredis$context, is_a("redis_context"))
   expect_that(db$hiredis$context$context, is_a("Rcpp_Redis"))
 })

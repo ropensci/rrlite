@@ -1,0 +1,61 @@
+---
+title: "Using Redis with rrlite"
+author: "Rich FitzJohn"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Using Redis with rrlite}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+One of the use cases of [`rlite`](https://github.com/seppo0010/rlite) is to replace Redis in the stack for testing/development, but to allow swapping Redis in because it is compatible with Redis.  `rrlite` supports the same workflow; develop locally but switch to using Redis at some later stage (e.g., scaling a problem to work across a cluster).
+
+The `hirlite` function that creates an interface to a `rlite` database can be replaced by the `hiredis` function that creates an interface to a `Redis` database using `RcppRedis`.
+
+First, using `rlite`:
+
+```{r}
+library(rrlite)
+r1 <- hirlite()
+r1$PING()
+```
+
+Then, using `Redis` (this requires a working Redis server, here assumed to be running locally on port)
+
+```{r}
+r2 <- hiredis()
+r2$PING()
+```
+
+All the commands are the same; in fact the only way of telling if you have an `rlite` or an `Redis` based interface (currently) is to inspect the `context` member:
+
+```{r}
+r1$context # rlite_context
+r2$context # redis_context
+```
+
+So, things like this work:
+
+```{r}
+r1$MSET(c("a", "b", "c"), c(1, 2, 3))
+r1$MGET(c("a", "b", "c"))
+```
+
+```{r}
+r2$MSET(c("a", "b", "c"), c(1, 2, 3))
+r2$MGET(c("a", "b", "c"))
+```
+
+All the handling of arguments, etc should be the same (though note they will differ from the user-friendly interface available in RcppRedis).
+
+An interface to Redis is also available with the high-level `rdb` object by passing in the argument `hiredis`.
+
+```{r}
+db <- rdb(hiredis=hiredis())
+db$set("rdb:data", mtcars)
+head(db$get("rdb:data"))
+db$keys("rdb:*")
+db$del("rdb:data")
+db$keys("rdb:*")
+```

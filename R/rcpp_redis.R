@@ -4,17 +4,19 @@
 ##' @param host Hostname (default is the localhost)
 ##' @param port Port to connect on
 ##' @export
-rcpp_redis <- function(host="127.0.0.1", port=6379) {
-  rcpp_redis_generator$new(host, port)
+redis_context <- function(host="127.0.0.1", port=6379) {
+  redis_context_generator$new(host, port)
 }
 
+##' @export
+##' @rdname redis_context
 hiredis <- function(host="127.0.0.1", port=6379) {
-  hiredis_generator$new(rcpp_redis(host, port))
+  hiredis_generator$new(redis_context(host, port))
 }
 
 ##' @importFrom R6 R6Class
-rcpp_redis_generator <- R6::R6Class(
-  "rcpp_redis",
+redis_context_generator <- R6::R6Class(
+  "redis_context",
   public=list(
     context=NULL,
 
