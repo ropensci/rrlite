@@ -10,3 +10,4 @@ extra
 ^.*\.Rproj$
 ^\.Rproj\.user$
 tests/testthat/test.rld
+^README\.Rmd$

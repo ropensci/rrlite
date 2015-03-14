@@ -20,6 +20,11 @@ install:
 build:
 	R CMD build .
 
+README.md: README.Rmd
+	Rscript -e 'library(methods); devtools::load_all(); knitr::knit("README.Rmd")'
+	sed -i.bak 's/[[:space:]]*$$//' README.md
+	rm -f $@.bak
+
 check: build
 	_R_CHECK_CRAN_INCOMING_=FALSE R CMD check --as-cran --no-manual `ls -1tr ${PACKAGE}*gz | tail -n1`
 	@rm -f `ls -1tr ${PACKAGE}*gz | tail -n1`
@@ -35,5 +40,4 @@ clean:
 	make -C src/rlite/src clean
 	rm -f src/*.o src/*.so
 
-# No real targets!
 .PHONY: clean all test document install
