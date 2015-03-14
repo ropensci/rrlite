@@ -2,20 +2,35 @@
 % Please edit documentation in R/rcpp_redis.R
 \name{redis_context}
 \alias{hiredis}
+\alias{redis_available}
 \alias{redis_context}
 \title{Interface to RcppRedis}
 \usage{
 redis_context(host = "127.0.0.1", port = 6379)
 
 hiredis(host = "127.0.0.1", port = 6379)
+
+redis_available(...)
 }
 \arguments{
 \item{host}{Hostname (default is the localhost)}
 
-\item{port}{Port to connect on}
+\item{port}{Port to connect on (default is Redis' default of 6379)}
+
+\item{...}{Arguments passed from \code{redis_available} to
+\code{redis_context}}
 }
 \description{
 Interface to RcppRedis.  This is the drop in replacement for
 \code{\link{rlite_context}}
+}
+\examples{
+# Only run if RcppRedis is installed and if a Redis server is running
+if (redis_available()) {
+con <- redis_context()
+con$run("PING")
+r <- hiredis()
+r$PING
+}
 }
 

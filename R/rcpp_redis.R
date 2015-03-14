@@ -2,8 +2,16 @@
 ##' \code{\link{rlite_context}}
 ##' @title Interface to RcppRedis
 ##' @param host Hostname (default is the localhost)
-##' @param port Port to connect on
+##' @param port Port to connect on (default is Redis' default of 6379)
 ##' @export
+##' @examples
+##' # Only run if RcppRedis is installed and if a Redis server is running
+##' if (redis_available()) {
+##' con <- redis_context()
+##' con$run("PING")
+##' r <- hiredis()
+##' r$PING
+##' }
 redis_context <- function(host="127.0.0.1", port=6379) {
   redis_context_generator$new(host, port)
 }
@@ -14,6 +22,16 @@ hiredis <- function(host="127.0.0.1", port=6379) {
   hiredis_generator$new(redis_context(host, port))
 }
 
+##' @export
+##' @rdname redis_context
+##' @param ... Arguments passed from \code{redis_available} to
+##' \code{redis_context}
+redis_available <- function(...) {
+  ## This will throw if Redis is not running or if the RcppRedis
+  ## package is not installed
+  !inherits(con <- try(redis_context(...), silent=TRUE), "try-error")
+}
+
 ##' @importFrom R6 R6Class
 redis_context_generator <- R6::R6Class(
   "redis_context",
@@ -21,7 +39,7 @@ redis_context_generator <- R6::R6Class(
     context=NULL,
 
     initialize=function(host, port) {
-      require(RcppRedis)
+      require("RcppRedis", character.only=TRUE, quietly=TRUE)
       self$context <- new(RcppRedis::Redis, host, port)
     },
 

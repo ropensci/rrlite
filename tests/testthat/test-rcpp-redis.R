@@ -1,11 +1,13 @@
 context("rlite + RcppRedis")
 
 test_that("connection", {
+  skip_if_no_redis()
   con <- redis_context()
   expect_that(con$run("PING"), equals("PONG"))
 })
 
 test_that("rlite(rcpp)", {
+  skip_if_no_redis()
   r <- hiredis()
   expect_that(r$PING(), equals("PONG"))
   key <- "rlite-test:foo"
@@ -17,6 +19,7 @@ test_that("rlite(rcpp)", {
 })
 
 test_that("rdb(rcpp)", {
+  skip_if_no_redis()
   db <- rdb(hiredis=hiredis())
   key <- "rlite-test:d"
   db$set(key, mtcars)
