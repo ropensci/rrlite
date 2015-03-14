@@ -21,6 +21,7 @@ before_install:
 install:
   - ./travis-tool.sh libhiredis-dev
   - ./travis-tool.sh install_deps
+  - ./travis-tool.sh install_r rmarkdown
   - ./travis-tool.sh github_package jimhester/covr
 
 script: ./travis-tool.sh run_tests
