@@ -30,6 +30,12 @@ assert_scalar_or_null <- function(x, name=deparse(substitute(x))) {
 vcapply <- function(X, FUN, ...) {
   vapply(X, FUN, character(1), ...)
 }
+viapply <- function(X, FUN, ...) {
+  vapply(X, FUN, integer(1), ...)
+}
+vlapply <- function(X, FUN, ...) {
+  vapply(X, FUN, logical(1), ...)
+}
 
 interleave <- function(a, b) {
   c(rbind(a, b))

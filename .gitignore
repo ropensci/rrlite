@@ -9,3 +9,4 @@ extra/redis-doc
 docker/
 inst/doc
 *.rld
+Rprof.out

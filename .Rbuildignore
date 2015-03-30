@@ -11,3 +11,4 @@ extra
 ^\.Rproj\.user$
 tests/testthat/test.rld
 ^README\.Rmd$
+^Rprof\.out$
