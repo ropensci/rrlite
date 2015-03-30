@@ -4,7 +4,7 @@
 // This is *really* simple minded, and focussed on the use case here:
 // break up the data.frame into a set of lists.
 // [[Rcpp::export]]
-Rcpp::List df_to_rows2(Rcpp::DataFrame d) {
+Rcpp::List df_to_rows(Rcpp::DataFrame d) {
   const size_t
     nr = static_cast<size_t>(d.nrows()),
     nc = static_cast<size_t>(d.size());

@@ -44,3 +44,7 @@ interleave <- function(a, b) {
 is_null_pointer <- function(x) {
   .Call("is_null_pointer", x, package="rrlite")
 }
+
+empty_named_list <- function() {
+  structure(list(), names=character(0))
+}

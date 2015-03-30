@@ -5,15 +5,15 @@
 
 using namespace Rcpp;
 
-// df_to_rows2
-Rcpp::List df_to_rows2(Rcpp::DataFrame d);
-RcppExport SEXP rrlite_df_to_rows2(SEXP dSEXP) {
+// df_to_rows
+Rcpp::List df_to_rows(Rcpp::DataFrame d);
+RcppExport SEXP rrlite_df_to_rows(SEXP dSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< Rcpp::DataFrame >::type d(dSEXP );
-        Rcpp::List __result = df_to_rows2(d);
+        Rcpp::List __result = df_to_rows(d);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
