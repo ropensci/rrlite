@@ -12,6 +12,7 @@ Maintainer: Rich FitzJohn <rich.fitzjohn@gmail.com>
 Suggests: testthat,
     knitr,
     RcppRedis
-Imports: R6
+Imports: R6, Rcpp
+LinkingTo: Rcpp
 VignetteBuilder: knitr
 SystemRequirements: GNU make

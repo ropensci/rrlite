@@ -39,3 +39,14 @@ test_that("Save data.frame to Redis server", {
   d2 <- from_redis(key, db)
   expect_that(d2, equals(d))
 })
+
+test_that("data.frame to rows", {
+  x <- mtcars
+  xx <- df_to_rows(x)
+  expect_that(unname(as.list(x[3,])),
+              is_identical_to(xx[[3]]))
+
+  ## This is pretty good: 0.07s
+  ## data("diamonds", package="ggplot2")
+  ## system.time(df_to_rows(diamonds))
+})

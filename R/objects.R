@@ -44,7 +44,10 @@ from_redis.data.frame <- function(key, db, ...) {
   ## ret <- do.call("rbind", dd)
 
   f <- function(x) {
-    setNames(string_to_object(x), nms)
+    structure(string_to_object(x),
+              names=nms,
+              class="data.frame",
+              row.names=1L)
   }
   dat <- lapply(db$mget(keys$rows), f)
   ## NOTE: May not be optimal...
@@ -90,8 +93,9 @@ to_redis.data.frame <- function(object, key, db, ...) {
   if (mode == "rows") {
     ## TODO: data.frame-to-rows function needed that very efficiently
     ## creates a list from a data.frame.
-    object_rows <- df_to_rows_serialized(object)
-    db$mset(keys$rows, object_rows)
+    # object_rows <- df_to_rows_serialized(object)
+    object_rows <- df_to_rows(object)
+    db$mset(keys$rows, vcapply(object_rows, object_to_string))
 
     ## TODO: Should be indexable?
     db$mset(keys$levels, object_to_string(attr(object_rows, "levels")))
@@ -159,7 +163,8 @@ df_to_rows <- function(x) {
   ## Might be better to serialise as a list, really.  This is totally
   ## going into C++ at some point, if there's a chance that the
   ## Rcpp::DataFrame object does this any better.
-  ret <- unname(split(x, seq_len(nrow(x))))
+  ## ret <- unname(split(x, seq_len(nrow(x))))
+  ret <- df_to_rows2(x)
   attr(ret, "levels") <- lvls
   ret
 }
