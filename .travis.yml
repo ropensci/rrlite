@@ -9,6 +9,8 @@ env:
     # Disable this until the dust settles:
     # - WARNINGS_ARE_ERRORS=1
 
+sudo: required
+
 # For testing against and using RcppRedis
 services:
   - redis-server
