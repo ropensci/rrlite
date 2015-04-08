@@ -12,3 +12,18 @@
 `$.hiredis` <- function(x, name) {
   x[[tolower(name)]]
 }
+
+##' Parse information returned by \code{INFO}
+##' @title Parse Redis INFO
+##' @param x character string
+##' @export
+parse_redis_info <- function(x) {
+  xx <- strsplit(x, "\r\n", fixed=TRUE)[[1]]
+  xx <- strsplit(xx, ":")
+  xx <- xx[viapply(xx, length) == 2L]
+  keys <- setNames(vcapply(xx, "[[", 2),
+                   vcapply(xx, "[[", 1))
+  keys <- strsplit(keys, ",", fixed=TRUE)
+  keys$redis_version <- numeric_version(keys$redis_version)
+  keys
+}
