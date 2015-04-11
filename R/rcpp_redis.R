@@ -37,10 +37,14 @@ redis_context_generator <- R6::R6Class(
   "redis_context",
   public=list(
     context=NULL,
+    host=NULL,
+    port=NULL,
 
     initialize=function(host, port) {
       require("RcppRedis", character.only=TRUE, quietly=TRUE)
-      self$context <- new(RcppRedis::Redis, host, port)
+      self$host <- host
+      self$port <- port
+      self$context <- new(RcppRedis::Redis, self$host, self$port)
     },
 
     ## This is an extremely thin wrapper:
