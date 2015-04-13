@@ -24,6 +24,7 @@ install:
   - ./travis-tool.sh install_aptget libhiredis-dev
   - ./travis-tool.sh install_deps
   - ./travis-tool.sh install_r rmarkdown
+  - ./travis-tool.sh install_r RcppRedis
   - ./travis-tool.sh github_package jimhester/covr
   - ./travis-tool.sh github_package richfitz/RedisAPI
 
