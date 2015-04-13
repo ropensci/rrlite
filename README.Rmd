@@ -1,7 +1,7 @@
 # rrlite
 
-[![Build Status](https://travis-ci.org/richfitz/rrlite.png?branch=master)](https://travis-ci.org/richfitz/rrlite)
-[![Coverage Status](https://coveralls.io/repos/richfitz/rrlite/badge.svg?branch=master)](https://coveralls.io/r/richfitz/rrlite?branch=master)
+[![Build Status](https://travis-ci.org/ropensci/rrlite.png?branch=master)](https://travis-ci.org/ropensci/rrlite)
+[![Coverage Status](https://coveralls.io/repos/ropensci/rrlite/badge.svg?branch=master)](https://coveralls.io/r/ropensci/rrlite?branch=master)
 
 R interface to rlite https://github.com/seppo0010/rlite
 
@@ -62,8 +62,8 @@ con$read()
 Because the source currently contains a submodule, the usual approach with `devtools::install_github` does not work, but this does:
 
 ```
-devtools::install_github("richfitz/RedisAPI")
-devtools::install_git("https://github.com/richfitz/rrlite", args="--recursive")
+devtools::install_github("ropensci/RedisAPI")
+devtools::install_git("https://github.com/ropensci/rrlite", args="--recursive")
 ```
 
 If installing manually, either clone the repository with the argument `--recursive` or after cloning the repository for the first time, run:
@@ -75,7 +75,7 @@ git submodule update
 
 ## Meta
 
-* Please [report any issues or bugs](https://github.com/richfitz/rrlite/issues).
+* Please [report any issues or bugs](https://github.com/ropensci/rrlite/issues).
 * License: BSD (2 clause)
 * Get citation information for `rrlite` in R doing `citation(package = 'rrlite')`
 

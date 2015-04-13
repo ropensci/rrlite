@@ -1,7 +1,7 @@
 # rrlite
 
-[![Build Status](https://travis-ci.org/richfitz/rrlite.png?branch=master)](https://travis-ci.org/richfitz/rrlite)
-[![Coverage Status](https://coveralls.io/repos/richfitz/rrlite/badge.svg?branch=master)](https://coveralls.io/r/richfitz/rrlite?branch=master)
+[![Build Status](https://travis-ci.org/ropensci/rrlite.png?branch=master)](https://travis-ci.org/ropensci/rrlite)
+[![Coverage Status](https://coveralls.io/repos/ropensci/rrlite/badge.svg?branch=master)](https://coveralls.io/r/ropensci/rrlite?branch=master)
 
 R interface to rlite https://github.com/seppo0010/rlite
 
@@ -19,10 +19,10 @@ r$get("foo")
 ```
 
 ```
-##  [1] 0.083679680 0.212175562 0.008093500 0.360269300 0.652972811
-##  [6] 0.421919252 0.909406325 0.468957169 0.233305612 0.293512560
-## [11] 0.234037842 0.050709831 0.396750277 0.005411737 0.670591355
-## [16] 0.969727408 0.855487781 0.040402737 0.567814262 0.728181447
+##  [1] 0.78390876 0.20506067 0.52435516 0.08032271 0.59842613 0.55835891
+##  [7] 0.63068016 0.42993257 0.69701444 0.81063080 0.87672640 0.30630597
+## [13] 0.17545979 0.76347071 0.60290470 0.80497685 0.11347877 0.01921442
+## [19] 0.26370165 0.88997782
 ```
 
 ```r
@@ -128,8 +128,8 @@ con$read()
 Because the source currently contains a submodule, the usual approach with `devtools::install_github` does not work, but this does:
 
 ```
-devtools::install_github("richfitz/RedisAPI")
-devtools::install_git("https://github.com/richfitz/rrlite", args="--recursive")
+devtools::install_github("ropensci/RedisAPI")
+devtools::install_git("https://github.com/ropensci/rrlite", args="--recursive")
 ```
 
 If installing manually, either clone the repository with the argument `--recursive` or after cloning the repository for the first time, run:
@@ -141,7 +141,7 @@ git submodule update
 
 ## Meta
 
-* Please [report any issues or bugs](https://github.com/richfitz/rrlite/issues).
+* Please [report any issues or bugs](https://github.com/ropensci/rrlite/issues).
 * License: BSD (2 clause)
 * Get citation information for `rrlite` in R doing `citation(package = 'rrlite')`
 
