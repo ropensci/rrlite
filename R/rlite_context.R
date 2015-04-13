@@ -22,8 +22,12 @@ rlite_context_generator <-
       ptr=NULL, # eventually this becomes private.
 
       initialize=function(path) {
-        self$path <- path
-        self$ptr <- .Call("rrlite_context", path, PACKAGE="rrlite")
+        if (is.character(path) && length(path) == 1L && !is.na(path)) {
+          self$path <- path
+          self$ptr <- .Call("rrlite_context", path, PACKAGE="rrlite")
+        } else {
+          stop("invalid path: must be a non-NA scalar character")
+        }
       },
 
       close=function() {

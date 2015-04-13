@@ -28,6 +28,14 @@ test_that("context filename", {
   gc() # no crash, we hope.
 })
 
+test_that("invalid filename", {
+  expect_that(rlite_context(NULL), throws_error("invalid path"))
+  expect_that(rlite_context(NA), throws_error("invalid path"))
+  expect_that(rlite_context(pi), throws_error("invalid path"))
+  expect_that(rlite_context(character(0)), throws_error("invalid path"))
+  expect_that(rlite_context(c("a", "b")), throws_error("invalid path"))  
+})
+
 test_that("reopen", {
   con <- rlite_context("test.rld")
   expect_that(file.exists("test.rld"), is_true())
