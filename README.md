@@ -13,15 +13,16 @@ Really basic get/set of R objects.  For now this is called `rdb`, but that's up 
 
 
 ```r
-r <- rrlite::rdb(":memory:")
+r <- RedisAPI::rdb(rrlite::hirlite)
 r$set("foo", runif(20))
 r$get("foo")
 ```
 
 ```
-##  [1] 0.8521784 0.4338668 0.3049987 0.4831506 0.3287057 0.2530637 0.7263134
-##  [8] 0.3472661 0.9710425 0.3014116 0.6545723 0.6389339 0.3895884 0.2126168
-## [15] 0.5761024 0.2011597 0.4887290 0.5380709 0.7555557 0.3852459
+##  [1] 0.083679680 0.212175562 0.008093500 0.360269300 0.652972811
+##  [6] 0.421919252 0.909406325 0.468957169 0.233305612 0.293512560
+## [11] 0.234037842 0.050709831 0.396750277 0.005411737 0.670591355
+## [16] 0.969727408 0.855487781 0.040402737 0.567814262 0.728181447
 ```
 
 ```r
@@ -41,7 +42,7 @@ Provides a reasonably complete interface to raw redis commands:
 
 ```r
 db <- rrlite::hirlite(":memory:")
-db$set("foo", "bar")
+db$SET("foo", "bar")
 ```
 
 ```
@@ -49,7 +50,7 @@ db$set("foo", "bar")
 ```
 
 ```r
-db$get("foo")
+db$GET("foo")
 ```
 
 ```
@@ -57,7 +58,7 @@ db$get("foo")
 ```
 
 ```r
-db$keys("*")
+db$KEYS("*")
 ```
 
 ```
@@ -71,17 +72,16 @@ Get lists of commands from the [main redis documentation](redis.io/commands/) or
 
 
 ```r
-rrlite::redis_help("SET")
+RedisAPI::redis_help("SET")
 ```
 
 ```
 ## Set the string value of a key
-## function (key, value, ex = NULL, px = NULL, condition = NULL)
 ## NULL
 ```
 
 ```r
-rrlite::redis_commands("string")
+RedisAPI::redis_commands("string")
 ```
 
 ```
@@ -93,13 +93,13 @@ rrlite::redis_commands("string")
 ```
 
 ```r
-rrlite::redis_commands_groups()
+RedisAPI::redis_commands_groups()
 ```
 
 ```
 ##  [1] "connection"   "generic"      "hash"         "hyperloglog"
-##  [5] "list"         "scripting"    "server"       "set"
-##  [9] "sorted_set"   "string"       "transactions"
+##  [5] "list"         "pubsub"       "scripting"    "server"
+##  [9] "set"          "sorted_set"   "string"       "transactions"
 ```
 
 ## Low level
@@ -128,6 +128,7 @@ con$read()
 Because the source currently contains a submodule, the usual approach with `devtools::install_github` does not work, but this does:
 
 ```
+devtools::install_github("richfitz/RedisAPI")
 devtools::install_git("https://github.com/richfitz/rrlite", args="--recursive")
 ```
 
@@ -143,3 +144,5 @@ git submodule update
 * Please [report any issues or bugs](https://github.com/richfitz/rrlite/issues).
 * License: BSD (2 clause)
 * Get citation information for `rrlite` in R doing `citation(package = 'rrlite')`
+
+[![rofooter](http://ropensci.org/public_images/github_footer.png)](http://ropensci.org)

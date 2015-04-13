@@ -12,7 +12,7 @@ R interface to rlite https://github.com/seppo0010/rlite
 Really basic get/set of R objects.  For now this is called `rdb`, but that's up for change.
 
 ```{r}
-r <- rrlite::rdb(":memory:")
+r <- RedisAPI::rdb(rrlite::hirlite)
 r$set("foo", runif(20))
 r$get("foo")
 r$keys()
@@ -26,9 +26,9 @@ Provides a reasonably complete interface to raw redis commands:
 
 ```{r}
 db <- rrlite::hirlite(":memory:")
-db$set("foo", "bar")
-db$get("foo")
-db$keys("*")
+db$SET("foo", "bar")
+db$GET("foo")
+db$KEYS("*")
 ```
 
 This does not do serialisation/deserialisation, so you're on your own with getting data in and out.  Very little sanitisation of input and output is done (for arrays are left as R lists, etc).  But this provides an almost complete set of redis commands so this is the correct level for package developers who want more control over how things are stored or want to use more advanced redis features than get/set.
@@ -36,9 +36,9 @@ This does not do serialisation/deserialisation, so you're on your own with getti
 Get lists of commands from the [main redis documentation](redis.io/commands/) or some help via
 
 ```{r}
-rrlite::redis_help("SET")
-rrlite::redis_commands("string")
-rrlite::redis_commands_groups()
+RedisAPI::redis_help("SET")
+RedisAPI::redis_commands("string")
+RedisAPI::redis_commands_groups()
 ```
 
 ## Low level
@@ -62,6 +62,7 @@ con$read()
 Because the source currently contains a submodule, the usual approach with `devtools::install_github` does not work, but this does:
 
 ```
+devtools::install_github("richfitz/RedisAPI")
 devtools::install_git("https://github.com/richfitz/rrlite", args="--recursive")
 ```
 
@@ -77,3 +78,5 @@ git submodule update
 * Please [report any issues or bugs](https://github.com/richfitz/rrlite/issues).
 * License: BSD (2 clause)
 * Get citation information for `rrlite` in R doing `citation(package = 'rrlite')`
+
+[![rofooter](http://ropensci.org/public_images/github_footer.png)](http://ropensci.org)
