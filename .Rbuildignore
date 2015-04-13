@@ -16,3 +16,4 @@ tests/testthat/test.rld
 ^src/rlite/deps/lua/src/.*\.o$
 ^src/rlite/deps/lua/src/lua$
 ^src/rlite/deps/lua/src/luac$
+^src/rlite/src/libhirlite\.so$
