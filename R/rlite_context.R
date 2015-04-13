@@ -4,6 +4,7 @@
 ##' \code{":memory:"} for an in-memory database.
 ##' @export
 ##' @importFrom R6 R6Class
+##' @useDynLib rrlite
 ##' @examples
 ##' r <- rlite_context()
 ##' r$run(c("SET", "foo", "bar"))
@@ -60,3 +61,7 @@ rlite_context_generator <-
         self$read()
       }
     ))
+
+is_null_pointer <- function(x) {
+  .Call("is_null_pointer", x, package="rrlite")
+}

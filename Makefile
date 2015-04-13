@@ -33,9 +33,6 @@ check: build
 check_all:
 	REMAKE_TEST_INSTALL_PACKAGES=true make check
 
-attributes:
-	${RSCRIPT} -e 'library(methods); Rcpp::compileAttributes()'
-
 clean:
 	make -C src/rlite/src clean
 	rm -f src/*.o src/*.so

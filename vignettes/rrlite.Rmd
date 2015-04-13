@@ -18,6 +18,7 @@ What is this thing?
 `rrlite` makes it easy to use `Redis` features without having to install and run a server just to save bits of data.  It can run a persistent storage to disk, or it can run ephemeral storage in memory.  The package will be mostly useful to package developers who need to store reasonable amounts of data, or for people developing HPC applications where the amount of data needed to be addressed is more than can be fit into memory.
 
 ```{r}
+library(RedisAPI)
 library(rrlite)
 ```
 
@@ -35,7 +36,7 @@ There are three levels of interface built into the package, with the idea that t
 
 Create a new database in memory (this is not written to disk, and I've not actually worked out how to save to disk once the database is created...)
 ```{r}
-db <- rdb()
+db <- rdb(hirlite)
 ```
 
 Newly created databases are empty - they have no keys

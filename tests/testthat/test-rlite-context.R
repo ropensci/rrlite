@@ -2,7 +2,7 @@ context("rlite_context")
 
 test_that("close context", {
   con <- rlite_context()
-  con$run("PING")
+  expect_that(con$run("PING"), equals("PONG"))
 
   expect_that(is_null_pointer(con$ptr), is_false())
   expect_that(con$is_closed(), is_false())

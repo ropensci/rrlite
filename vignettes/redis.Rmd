@@ -24,15 +24,16 @@ r1$PING()
 Then, using `Redis` (this requires a working Redis server, here assumed to be running locally on port)
 
 ```{r}
+library(RedisAPI)
 r2 <- hiredis()
 r2$PING()
 ```
 
-All the commands are the same; in fact the only way of telling if you have an `rlite` or an `Redis` based interface (currently) is to inspect the `context` member:
+All the commands are the same; in fact the only way of telling if you have an `rlite` or an `Redis` based interface (currently) is to inspect the `type` member:
 
 ```{r}
-r1$context # rlite_context
-r2$context # redis_context
+r1$type # rlite_context
+r2$type # redis_context
 ```
 
 So, things like this work:
@@ -52,7 +53,7 @@ All the handling of arguments, etc should be the same (though note they will dif
 An interface to Redis is also available with the high-level `rdb` object by passing in the argument `hiredis`.
 
 ```{r}
-db <- rdb(hiredis=hiredis())
+db <- RedisAPI::rdb(hiredis)
 db$set("rdb:data", mtcars)
 head(db$get("rdb:data"))
 db$keys("rdb:*")

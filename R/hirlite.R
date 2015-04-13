@@ -4,10 +4,11 @@
 ##' \code{":memory:"} for an in-memory database.
 ##' @export
 ##' @importFrom R6 R6Class
+##' @importFrom RedisAPI redis_api
 ##' @examples
 ##' r <- hirlite()
 ##' r$SET("foo", "bar")
 ##' r$GET("foo")
 hirlite <- function(path=":memory:") {
-  hiredis_generator$new(rlite_context(path))
+  redis_api(rlite_context(path))
 }
