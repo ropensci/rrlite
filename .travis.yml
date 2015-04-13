@@ -25,6 +25,7 @@ install:
   - ./travis-tool.sh install_deps
   - ./travis-tool.sh install_r rmarkdown
   - ./travis-tool.sh github_package jimhester/covr
+  - ./travis-tool.sh github_package richfitz/RedisAPI
 
 script: ./travis-tool.sh run_tests
 
