@@ -30,137 +30,64 @@ There are three levels of interface built into the package, with the idea that t
 * Medium level `rlite`: This is the main interface.  It provdes access to `r length(ls(hirlite())) - 1L` `Redis` commands as a set of user-friendly R functions that do basic error checking.  This is the level that new applications would be build from, and `rdb` is built on top of `rlite`.
 * Lowest level `rlite_context`: This is direct access to the `rlite` library; commands are passed unchecked, and this can work in an asynchronous mode.  The `rlite` interface is built on top of this level.
 
-# Usage
+One of the use cases of [`rlite`](https://github.com/seppo0010/rlite) is to replace Redis in the stack for testing/development, but to allow swapping Redis in because it is compatible with Redis.  `rrlite` supports the same workflow; develop locally but switch to using Redis at some later stage (e.g., scaling a problem to work across a cluster) by using the [`RedisAPI`](https://github.com/ropensci/RedisAPI) package.
 
-## High level
-
-Create a new database in memory (this is not written to disk, and I've not actually worked out how to save to disk once the database is created...)
 ```{r}
-db <- rdb(hirlite)
+r1 <- rrlite::hirlite()
+r1$PING()
 ```
 
-Newly created databases are empty - they have no keys
+Then, using `Redis` (this requires a working Redis server, here assumed to be running locally on port)
+
 ```{r}
-db$keys()
+r2 <- RedisAPI::hiredis()
+r2$PING()
 ```
 
-R objects can be stored against keys, for example:
+All the commands are the same; in fact the only way of telling if you have an `rlite` or an `Redis` based interface (currently) is to inspect the `type` member:
+
 ```{r}
-db$set("mykey", 1:10)
-db$keys()
+r1$type # rrlite
+r2$type # RcppRedis
 ```
 
-Retrieve the value of a key with `$get`:
+So, things like this work:
+
 ```{r}
-db$get("mykey")
+r1$MSET(c("a", "b", "c"), c(1, 2, 3))
+r1$MGET(c("a", "b", "c"))
 ```
 
-Trying to get a nonexistant key does not throw an error but returns `NULL`
 ```{r}
-db$get("no_such_key")
+r2$MSET(c("a", "b", "c"), c(1, 2, 3))
+r2$MGET(c("a", "b", "c"))
 ```
 
-That's it.  Arbitrary R objects can be stored in keys, and they will be returned intact with few exceptions (the exceptions are things like `rdb` itself which includes an "external pointer" object which can't be serialised - see `?serialize` for more information):
+All the handling of arguments, etc should be the same (though note they will differ from the user-friendly interface available in RcppRedis).
+
+You can also create rdb databases, in memory:
 
 ```{r}
-db$set("mtcars", mtcars)
-identical(db$get("mtcars"), mtcars)
-db$set("a_function", sin)
-db$get("a_function")(pi / 2) # 1
+r <- RedisAPI::rdb(rrlite::hirlite)
+r$set("cars", mtcars)
+head(r$get("cars"))
 ```
 
-This seems really silly, but is potentially very useful.  There are file-based key/value systems on CRAN, and this would be another but backed by a potentailly very efficient store (and without the overhead of disk access).
-
-## Intermediate level
-
-This is the richest level, and a full demonstration is out of scope for this tutorial.  This gives you all the power of `Redis`, but you are more limited in what you can store.
+or persistently to disk:
 
 ```{r}
-r <- hirlite()
-```
-
-The `rlite` object is an [`R6`](https://github.com/wch/R6) class with many methods, corresponding to different `Redis` commands.  For example, `SET` and `GET`:
-
-```{r}
-r$SET("mykey", "mydata") # set the key "mykey" to the value "mydata"
-r$GET("mykey")
-```
-
-The value must be a string or will be coerced into one.  So if you want to save an arbitrary R object, you need to convert it to a string.  The `object_to_string` function and its inverse `string_to_object` can help here:
-
-```{r}
-s <- object_to_string(1:10)
-s # ew. but this does encode everything about this object
-string_to_object(s) # here's the original back
-```
-
-So:
-```{r}
-r$SET("mylist", object_to_string(1:10))
-r$GET("mylist")
-string_to_object(r$GET("mylist"))
-```
-
-This is how the `rdb` object is implemented!
-
-However, `Redis` offers far better ways of holding lists, if that is the aim:
-
-```{r}
-r$RPUSH("mylist2", 1:10)
-```
-
-(the returned value `10` indicates that the list "mylist2" is 10 elements long).  There are [lots of commands](http://redis.io/commands/#list) for operating on lits, but you can do things like
-
-
-* get an element by its index (note tht this uses C-style base0 indexing for consistency with the `Redis` documentation rather than R's semantics)
-```{r}
-r$LINDEX("mylist2", 1)
-```
-
-* set an element by its index
-```{r}
-r$LSET("mylist2", 1, "carrot")
-```
-
-* get all of a list:
-```{r}
-r$LRANGE("mylist2", 0, -1)
-```
-
-* or part of it:
-```{r}
-r$LRANGE("mylist2", 0, 2)
-```
-
-* pop elements off the front or back
-```{r}
-r$LLEN("mylist2")
-r$LPOP("mylist2")
-r$RPOP("mylist2")
-r$LLEN("mylist2")
-```
-
-Of course, each element of the list can be an R object if you run it through `object_to_string`:
-
-```{r}
-r$LPUSH("mylist2", object_to_string(1:10))
-```
-
-but you'll be responsible for converting that back:
-
-```{r}
-dat <- r$LRANGE("mylist2", 0, 2)
-dat
-dat[[1]] <- string_to_object(dat[[1]])
-dat
+r <- RedisAPI::rdb(rrlite::hirlite, "tmp.rdb")
+r$set("cars", mtcars)
+head(r$get("cars"))
+file.exists("tmp.rdb")
 ```
 
 ## Low level interface
 
-Probably best not to use this unless you really want to, but this provides the most complete interface to `rlite` with the least amount of checking.  If complete speed is the aim then working via this interface and doing just the checking that you want might be the best bet.
+Probably best not to use this unless you really need to, but this provides the most complete interface to `rlite` with the least amount of checking.  If complete speed is the aim then working via this interface and doing just the checking that you want might be the best bet.
 
 ```{r}
-con <- rlite_context(":memory:")
+con <- rrlite::rlite_context(":memory:")
 con$run(c("SET", "foo", "bar"))
 con$run(c("GET", "foo"))
 ```
@@ -174,57 +101,8 @@ con$read()
 
 but you're responsible for making sure there are no pending replies by matching every `write`  call with a `read` call.  This might be useful for blocking operations.
 
-# Potential applications
-
-Because `rrlite` exposes all of `rlite`, you can roll your own data structures.
-
-First, a generator object that sets up a new list at `key` within the database `r`.
-
-```{r}
-rlist <- function(..., key=NULL, r=hirlite(":memory:")) {
-  if (is.null(key)) {
-    key <- paste(sample(letters, 32, replace=TRUE), collapse="")
-  }
-  dat <- vapply(c(...), object_to_string, character(1))
-  r$RPUSH(key, dat)
-  ret <- list(r=r, key=key)
-  class(ret) <- "rlist"
-  ret
-}
+```{r, echo=FALSE, results="hide"}
+rm(r)
+gc()
+file.remove("tmp.rdb")
 ```
-
-Then some S3 methods that work with this object.  I've only implemented `length` and `[[`, but `[` would be useful here too as would `print`.
-
-```{r}
-length.rlist <- function(x) {
-  x$r$LLEN(x$key)
-}
-
-`[[.rlist` <- function(x, i, ...) {
-  string_to_object(x$r$LINDEX(x$key, i - 1L))
-}
-
-`[[<-.rlist` <- function(x, i, value, ...) {
-  x$r$LSET(x$key, i - 1L, object_to_string(value))
-  x
-}
-```
-
-Then we have this weird object we can add things to.
-```{r}
-obj <- rlist(1:10)
-length(obj) # 10
-obj[[3]]
-obj[[3]] <- "an element"
-obj[[3]]
-```
-
-The object has reference semantics so that assignment does *not* make a copy:
-
-```{r}
-obj2 <- obj
-obj2[[2]] <- obj2[[2]] * 2
-obj[[2]] == obj2[[2]]
-```
-
-What would be nice is a set of tools for working with any R/`Redis` package that can convert R objects into `Redis` data structures so that they can be accessed in pieces even if they are far too big to fit into memory.  Of course, these objects could be read/written by programs *other* than R if they also support `Redis`.

@@ -37,4 +37,7 @@ clean:
 	make -C src/rlite/src clean
 	rm -f src/*.o src/*.so
 
-.PHONY: clean all test document install
+vignettes:
+	${RSCRIPT} -e 'library(methods); devtools::build_vignettes()'
+
+.PHONY: clean all test document install vignettes
