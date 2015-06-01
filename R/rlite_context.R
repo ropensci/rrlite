@@ -13,12 +13,6 @@ rlite_context <- function(path=":memory:") {
   rlite_context_generator$new(path)
 }
 
-##' @importFrom RedisAPI redis_api
-##' @export
-redis_api.rlite_context <- function(x, ...) {
-  redis_api(x$run, ...)
-}
-
 ##' @importFrom R6 R6Class
 rlite_context_generator <-
   R6::R6Class(

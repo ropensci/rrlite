@@ -10,5 +10,6 @@
 ##' r$SET("foo", "bar")
 ##' r$GET("foo")
 hirlite <- function(path=":memory:") {
-  redis_api(rlite_context(path))
+  redis_api(rlite_context(path)$run,
+            path, NULL, "rrlite")
 }

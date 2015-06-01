@@ -12,10 +12,6 @@ test_that("basic use", {
 
 test_that("creation", {
   con <- rrlite::rlite_context()
-  obj <- RedisAPI::redis_api(con$run)
-  expect_that(obj, is_a("redis_api"))
-  expect_that(obj$type, equals("rrlite"))
-  expect_that(obj$host, equals(":memory:"))
-  expect_that(obj$port, equals(NULL))
-  expect_that(obj$PING(), equals("PONG"))
+  con$write("PING")
+  expect_that(con$read(), equals("PONG"))
 })

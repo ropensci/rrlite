@@ -1,7 +1,7 @@
 context("rdb")
 
 test_that("rlite", {
-  r <- RedisAPI::rdb(hirlite)
+  r <- RedisAPI::rdb(hirlite())
   x <- mtcars
   expect_that(r$set("foo", x), is_null())
   expect_that(r$get("foo"), equals(x))

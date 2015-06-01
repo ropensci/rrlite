@@ -12,6 +12,6 @@ Depends: R (>= 3.1.0)
 License: BSD_2_clause + file LICENSE
 LazyData: true
 Suggests: testthat, knitr, RcppRedis
-Imports: R6, RedisAPI
+Imports: R6, RedisAPI (>= 0.1.3)
 VignetteBuilder: knitr
 SystemRequirements: GNU make
