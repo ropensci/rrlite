@@ -37,7 +37,10 @@ clean:
 	make -C src/rlite/src clean
 	rm -f src/*.o src/*.so
 
-vignettes:
+vignettes/rrlite.Rmd: vignettes/src/rrlite.R
+	${RSCRIPT} -e 'library(sowsear); sowsear("$<", output="$@")'
+
+vignettes: vignettes/rrlite.Rmd
 	${RSCRIPT} -e 'library(methods); devtools::build_vignettes()'
 
 .PHONY: clean all test document install vignettes

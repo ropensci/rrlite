@@ -17,7 +17,7 @@ What is this thing?
 
 `rrlite` makes it easy to use `Redis` features without having to install and run a server just to save bits of data.  It can run a persistent storage to disk, or it can run ephemeral storage in memory.  The package will be mostly useful to package developers who need to store reasonable amounts of data, or for people developing HPC applications where the amount of data needed to be addressed is more than can be fit into memory.
 
-```{r}
+``` {r }
 library(RedisAPI)
 library(rrlite)
 ```
@@ -32,33 +32,31 @@ There are three levels of interface built into the package, with the idea that t
 
 One of the use cases of [`rlite`](https://github.com/seppo0010/rlite) is to replace Redis in the stack for testing/development, but to allow swapping Redis in because it is compatible with Redis.  `rrlite` supports the same workflow; develop locally but switch to using Redis at some later stage (e.g., scaling a problem to work across a cluster) by using the [`RedisAPI`](https://github.com/ropensci/RedisAPI) package.
 
-```{r}
+``` {r }
 r1 <- rrlite::hirlite()
 r1$PING()
 ```
 
 Then, using `Redis` (this requires a working Redis server, here assumed to be running locally on port)
 
-```{r}
+``` {r }
 r2 <- RedisAPI::hiredis()
 r2$PING()
 ```
 
 All the commands are the same; in fact the only way of telling if you have an `rlite` or an `Redis` based interface (currently) is to inspect the `type` member:
 
-```{r}
+``` {r }
 r1$type # rrlite
 r2$type # RcppRedis
 ```
 
 So, things like this work:
 
-```{r}
+``` {r }
 r1$MSET(c("a", "b", "c"), c(1, 2, 3))
 r1$MGET(c("a", "b", "c"))
-```
 
-```{r}
 r2$MSET(c("a", "b", "c"), c(1, 2, 3))
 r2$MGET(c("a", "b", "c"))
 ```
@@ -67,7 +65,7 @@ All the handling of arguments, etc should be the same (though note they will dif
 
 You can also create rdb databases, in memory:
 
-```{r}
+``` {r }
 r <- RedisAPI::rdb(rrlite::hirlite)
 r$set("cars", mtcars)
 head(r$get("cars"))
@@ -75,7 +73,7 @@ head(r$get("cars"))
 
 or persistently to disk:
 
-```{r}
+``` {r }
 r <- RedisAPI::rdb(rrlite::hirlite, "tmp.rdb")
 r$set("cars", mtcars)
 head(r$get("cars"))
@@ -86,7 +84,7 @@ file.exists("tmp.rdb")
 
 Probably best not to use this unless you really need to, but this provides the most complete interface to `rlite` with the least amount of checking.  If complete speed is the aim then working via this interface and doing just the checking that you want might be the best bet.
 
-```{r}
+``` {r }
 con <- rrlite::rlite_context(":memory:")
 con$run(c("SET", "foo", "bar"))
 con$run(c("GET", "foo"))
@@ -94,14 +92,14 @@ con$run(c("GET", "foo"))
 
 You can run asynchronously
 
-```{r}
+``` {r }
 con$write(c("set", "foo", "bar"))
 con$read()
 ```
 
 but you're responsible for making sure there are no pending replies by matching every `write`  call with a `read` call.  This might be useful for blocking operations.
 
-```{r, echo=FALSE, results="hide"}
+``` {r echo=FALSE, results="hide"}
 rm(r)
 gc()
 file.remove("tmp.rdb")
