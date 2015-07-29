@@ -124,18 +124,9 @@ con$read()
 
 # Installation
 
-Because the source currently contains a submodule, the usual approach with `devtools::install_github` does not work, but this does:
-
 ```
 devtools::install_github("ropensci/RedisAPI")
-devtools::install_git("https://github.com/ropensci/rrlite", args="--recursive")
-```
-
-If installing manually, either clone the repository with the argument `--recursive` or after cloning the repository for the first time, run:
-
-```
-git submodule init
-git submodule update
+devtools::install_github("ropensci/rrlite")
 ```
 
 ## Meta
