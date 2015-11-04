@@ -1,6 +1,6 @@
 # -*-makefile-*-
 
-CXX_STD = CXX11
+#CXX_STD = CXX11
 
 # Compared with jqr, rlite is not yet versioned, but we also want to
 # hit the directory with useful bits.

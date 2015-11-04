@@ -2,20 +2,27 @@
 % Please edit documentation in R/hirlite.R
 \name{hirlite}
 \alias{hirlite}
-\title{Create an hirlite object}
+\title{Interface to rlite}
 \usage{
-hirlite(path = ":memory:")
+hirlite(...)
 }
 \arguments{
-\item{path}{Path to a persistent object or the magic string
-\code{":memory:"} for an in-memory database.}
+\item{...}{Named configuration options passed to
+  \code{\link{redis_config}}, used to create the environment
+  (notable keys include \code{host}, \code{port}, and the
+  environment variable \code{REDIS_URL})}
 }
 \description{
-Create an hirlite object
+Create an interface to rlite, with a generated interface to all
+rlite commands (using \code{RedisAPI}).
 }
 \examples{
-r <- hirlite()
-r$SET("foo", "bar")
-r$GET("foo")
+# Only run if a Redis server is running
+if (redis_available()) {
+  r <- hirlite()
+  r$PING()
+  r$SET("foo", "bar")
+  r$GET("foo")
+}
 }
 
