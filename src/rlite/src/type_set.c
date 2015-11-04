@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include "rlite.h"
-#include "page_multi_string.h"
-#include "type_set.h"
-#include "page_btree.h"
-#include "util.h"
+#include "rlite/page_multi_string.h"
+#include "rlite/type_set.h"
+#include "rlite/page_btree.h"
+#include "rlite/util.h"
 
 static int rl_set_create(rlite *db, long btree_page, rl_btree **btree)
 {
@@ -220,17 +220,22 @@ cleanup:
 	return retval;
 }
 
-int rl_set_iterator_next(rl_set_iterator *iterator, unsigned char **member, long *memberlen)
+int rl_set_iterator_next(rl_set_iterator *iterator, long *_page, unsigned char **member, long *memberlen)
 {
 	void *tmp;
 	long page;
 	int retval = rl_btree_iterator_next(iterator, NULL, &tmp);
 	if (retval == RL_OK) {
 		page = *(long *)tmp;
+		if (_page) {
+			*_page = page;
+		}
 		rl_free(tmp);
-		RL_CALL(rl_multi_string_get, RL_OK, iterator->db, page, member, memberlen);
+		retval = rl_multi_string_get(iterator->db, page, member, memberlen);
+		if (retval != RL_OK) {
+			rl_set_iterator_destroy(iterator);
+		}
 	}
-cleanup:
 	return retval;
 }
 
@@ -389,12 +394,12 @@ int rl_sdiff(struct rlite *db, int keyc, unsigned char **keys, long *keyslen, lo
 		*_memberslen = memberslen;
 	}
 	else {
-		*_members = realloc(members, sizeof(unsigned char *) * membersc);
+		*_members = rl_realloc(members, sizeof(unsigned char *) * membersc);
 		if (*_members == NULL) {
 			retval = RL_OUT_OF_MEMORY;
 			goto cleanup;
 		}
-		*_memberslen = realloc(memberslen, sizeof(long) * membersc);
+		*_memberslen = rl_realloc(memberslen, sizeof(long) * membersc);
 		if (*_memberslen == NULL) {
 			retval = RL_OUT_OF_MEMORY;
 			goto cleanup;
@@ -506,12 +511,12 @@ int rl_sinter(struct rlite *db, int keyc, unsigned char **keys, long *keyslen, l
 		*_memberslen = memberslen;
 	}
 	else {
-		*_members = realloc(members, sizeof(unsigned char *) * membersc);
+		*_members = rl_realloc(members, sizeof(unsigned char *) * membersc);
 		if (*_members == NULL) {
 			retval = RL_OUT_OF_MEMORY;
 			goto cleanup;
 		}
-		*_memberslen = realloc(memberslen, sizeof(long) * membersc);
+		*_memberslen = rl_realloc(memberslen, sizeof(long) * membersc);
 		if (*_memberslen == NULL) {
 			retval = RL_OUT_OF_MEMORY;
 			goto cleanup;
@@ -629,12 +634,12 @@ int rl_sunion(struct rlite *db, int keyc, unsigned char **keys, long *keyslen, l
 		*_memberslen = memberslen;
 	}
 	else {
-		*_members = realloc(members, sizeof(unsigned char *) * membersc);
+		*_members = rl_realloc(members, sizeof(unsigned char *) * membersc);
 		if (*_members == NULL) {
 			retval = RL_OUT_OF_MEMORY;
 			goto cleanup;
 		}
-		*_memberslen = realloc(memberslen, sizeof(long) * membersc);
+		*_memberslen = rl_realloc(memberslen, sizeof(long) * membersc);
 		if (*_memberslen == NULL) {
 			retval = RL_OUT_OF_MEMORY;
 			goto cleanup;

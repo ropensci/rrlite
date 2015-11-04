@@ -30,8 +30,8 @@
 
 
 #include "rlite.h"
-#include "sort.h"
-#include "pqsort.h" /* Partial qsort for SORT+LIMIT */
+#include "rlite/sort.h"
+#include "rlite/pqsort.h" /* Partial qsort for SORT+LIMIT */
 #include <math.h> /* isnan() */
 #include <errno.h>
 
@@ -88,7 +88,7 @@ static int lookupKeyByPattern(rlite *db, unsigned char *pattern, long patternlen
 	/* If the pattern is "#" return the substitution object itself in order
 	 * to implement the "SORT ... GET #" feature. */
 	if (pattern[0] == '#' && pattern[1] == '\0') {
-		*retobj = malloc(sizeof(unsigned char) * sublen);
+		*retobj = rl_malloc(sizeof(unsigned char) * sublen);
 		if (!*retobj) {
 			return RL_OUT_OF_MEMORY;
 		}
@@ -108,11 +108,7 @@ static int lookupKeyByPattern(rlite *db, unsigned char *pattern, long patternlen
 	/* Find out if we're dealing with a hash dereference. */
 	if ((f = (unsigned char *)strstr((char *)p+1, "->")) != NULL && *(f+2) != '\0') {
 		fieldlen = patternlen-(f-pattern)-2;
-		field = malloc(sizeof(unsigned char) * fieldlen);
-		if (!field) {
-			return RL_OUT_OF_MEMORY;
-		}
-		memcpy(field, f + 2, fieldlen);
+		field = f + 2;
 	} else {
 		fieldlen = 0;
 	}
@@ -121,7 +117,7 @@ static int lookupKeyByPattern(rlite *db, unsigned char *pattern, long patternlen
 	prefixlen = p-pattern;
 	postfixlen = patternlen-(prefixlen+1)-(fieldlen ? fieldlen+2 : 0);
 	keylen = prefixlen+sublen+postfixlen;
-	key = malloc(sizeof(unsigned char) * keylen);
+	key = rl_malloc(sizeof(unsigned char) * keylen);
 	if (!key) {
 		retval = RL_OUT_OF_MEMORY;
 		goto cleanup;
@@ -154,8 +150,7 @@ static int lookupKeyByPattern(rlite *db, unsigned char *pattern, long patternlen
 	}
 	retval = RL_OK;
 cleanup:
-	free(key);
-	free(field);
+	rl_free(key);
 	if (retval != RL_OK) {
 		*retobj = NULL;
 		*retobjlen = 0;
@@ -225,8 +220,8 @@ int rl_sort(struct rlite *db, unsigned char *key, long keylen, unsigned char *so
 	/* Lookup the key to sort. It must be of the right types */
 	unsigned char type;
 	long objc;
-	unsigned char **objv;
-	long *objvlen;
+	unsigned char **objv = NULL;
+	long *objvlen = NULL;
 
 	if (storekey) {
 		RL_CALL2(rl_key_delete_with_value, RL_OK, RL_NOT_FOUND, db, storekey, storekeylen);
@@ -339,7 +334,7 @@ int rl_sort(struct rlite *db, unsigned char *key, long keylen, unsigned char *so
 		rl_set_iterator *siterator;
 		RL_CALL(rl_smembers, RL_OK, db, &siterator, key, keylen);
 
-		while ((retval = rl_set_iterator_next(siterator, &value, &valuelen)) == RL_OK) {
+		while ((retval = rl_set_iterator_next(siterator, NULL, &value, &valuelen)) == RL_OK) {
 			vector[j].obj = value;
 			vector[j].objlen = valuelen;
 			vector[j].u.score = 0;
@@ -364,7 +359,7 @@ int rl_sort(struct rlite *db, unsigned char *key, long keylen, unsigned char *so
 		} else {
 			RL_CALL(rl_zrange, RL_OK, db, key, keylen, start, end, &ziterator);
 		}
-		while ((retval = rl_zset_iterator_next(ziterator, NULL, &value, &valuelen)) == RL_OK) {
+		while ((retval = rl_zset_iterator_next(ziterator, NULL, NULL, &value, &valuelen)) == RL_OK) {
 			vector[j].obj = value;
 			vector[j].objlen = valuelen;
 			vector[j].u.score = 0;
@@ -381,7 +376,7 @@ int rl_sort(struct rlite *db, unsigned char *key, long keylen, unsigned char *so
 	} else if (type == RL_TYPE_ZSET) {
 		rl_zset_iterator *ziterator;
 		RL_CALL(rl_zrange, RL_OK, db, key, keylen, 0, -1, &ziterator);
-		while ((retval = rl_zset_iterator_next(ziterator, NULL, &value, &valuelen)) == RL_OK) {
+		while ((retval = rl_zset_iterator_next(ziterator, NULL, NULL, &value, &valuelen)) == RL_OK) {
 			vector[j].obj = value;
 			vector[j].objlen = valuelen;
 			vector[j].u.score = 0;
@@ -461,17 +456,8 @@ int rl_sort(struct rlite *db, unsigned char *key, long keylen, unsigned char *so
 	/* Send command output to the output buffer, performing the specified
 	 * GET/DEL/INCR/DECR operations if any. */
 	objc = getc ? getc*(end-start+1) : end-start+1;
-	objv = malloc(sizeof(unsigned char *) * objc);
-	if (!objv) {
-		retval = RL_OUT_OF_MEMORY;
-		goto cleanup;
-	}
-	objvlen = malloc(sizeof(long) * objc);
-	if (!objvlen) {
-		free(objv);
-		retval = RL_OUT_OF_MEMORY;
-		goto cleanup;
-	}
+	RL_MALLOC(objv, sizeof(unsigned char *) * objc);
+	RL_MALLOC(objvlen, sizeof(long) * objc);
 
 	for (i = 0, j = start; j <= end; j++) {
 		if (getc) {
@@ -497,6 +483,8 @@ int rl_sort(struct rlite *db, unsigned char *key, long keylen, unsigned char *so
 		}
 		rl_free(objv);
 		rl_free(objvlen);
+		objv = NULL;
+		objvlen = NULL;
 	} else {
 		*retobjv = objv;
 		*retobjvlen = objvlen;
@@ -520,10 +508,14 @@ int rl_sort(struct rlite *db, unsigned char *key, long keylen, unsigned char *so
 	retval = RL_OK;
 cleanup:
 	if (retval != RL_OK) {
-		for (j = 0; j < vectorlen; j++) {
-			rl_free(vector[j].obj);
+		if (vector) {
+			for (j = 0; j < vectorlen; j++) {
+				rl_free(vector[j].obj);
+			}
 		}
 		*retobjc = 0;
+		rl_free(objv);
+		rl_free(objvlen);
 	}
 	rl_free(vector);
 	rl_free(values);

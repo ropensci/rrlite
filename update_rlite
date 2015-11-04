@@ -1,0 +1,50 @@
+#!/usr/bin/env Rscript
+args <- commandArgs(TRUE)
+if (length(args) != 1L) {
+  stop("Usage: update_hiredis <path_to_rlite.tar.gz>")
+}
+
+dest <- "src/rlite"
+bak <- "src/rlite.bak"
+
+path <- args[[1]]
+tmp <- tempdir()
+untar(path, exdir=tmp)
+path <- dir(tmp, full.names=TRUE)
+
+invisible(file.rename(dest, bak))
+
+dir.create(dest)
+invisible(file.copy(c(file.path(path, "src"),
+                      file.path(path, "deps")),
+                    dest,
+                    recursive=TRUE))
+
+dir.create("inst", FALSE)
+
+header <-
+  c("The following license applies to code from the rlite library",
+    "which will be linked into the installed package",
+    "")
+
+writeLines(c(header, readLines(file.path(path, "LICENSE"))),
+           file.path("inst", "COPYING.rlite"))
+
+unlink(bak, recursive=TRUE)
+
+ignore <- c("*.a",
+            "*.o",
+            "/src/*-test",
+            "/src/rlite-test.rld",
+            "*.gcov",
+            "*.gcda",
+            "*.gcno",
+            "/src/lcov/app.info",
+            "/src/lcov/html",
+            "/src/malloc-debug",
+            "*.dylib",
+            "*.so",
+            "*.pc",
+            "deps/lua/src/luac",
+            "deps/lua/src/lua")
+writeLines(ignore, file.path(dest, ".gitignore"))

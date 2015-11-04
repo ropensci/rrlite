@@ -4,10 +4,10 @@
 #include <math.h>
 #include <stdlib.h>
 #include "rlite.h"
-#include "page_multi_string.h"
-#include "type_hash.h"
-#include "page_btree.h"
-#include "util.h"
+#include "rlite/page_multi_string.h"
+#include "rlite/type_hash.h"
+#include "rlite/page_btree.h"
+#include "rlite/util.h"
 
 static int rl_hash_create(rlite *db, long btree_page, rl_btree **btree)
 {
@@ -169,8 +169,8 @@ int rl_hmget(struct rlite *db, const unsigned char *key, long keylen, int fieldc
 	unsigned char *digest = NULL;
 	rl_hashkey *hashkey;
 
-	unsigned char **data = malloc(sizeof(unsigned char *) * fieldc);
-	long *datalen = malloc(sizeof(long) * fieldc);
+	unsigned char **data = rl_malloc(sizeof(unsigned char *) * fieldc);
+	long *datalen = rl_malloc(sizeof(long) * fieldc);
 	RL_CALL(rl_hash_get_objects, RL_OK, db, key, keylen, &hash_page_number, &hash, 0, 0);
 
 	RL_MALLOC(digest, sizeof(unsigned char) * 20);
@@ -353,7 +353,7 @@ int rl_hincrby(struct rlite *db, const unsigned char *key, long keylen, unsigned
 	if (retval == RL_FOUND) {
 		hashkey = tmp;
 		rl_multi_string_get(db, hashkey->value_page, &data, &datalen);
-		tmp = realloc(data, sizeof(unsigned char) * (datalen + 1));
+		tmp = rl_realloc(data, sizeof(unsigned char) * (datalen + 1));
 		if (!tmp) {
 			retval = RL_OUT_OF_MEMORY;
 			goto cleanup;
@@ -438,7 +438,7 @@ int rl_hincrbyfloat(struct rlite *db, const unsigned char *key, long keylen, uns
 		hashkey = tmp;
 		rl_multi_string_get(db, hashkey->value_page, &data, &datalen);
 		dataalloc = (datalen / 8 + 1) * 8;
-		tmp = realloc(data, sizeof(unsigned char) * dataalloc);
+		tmp = rl_realloc(data, sizeof(unsigned char) * dataalloc);
 		if (!tmp) {
 			retval = RL_OUT_OF_MEMORY;
 			goto cleanup;
@@ -497,7 +497,7 @@ cleanup:
 	return retval;
 }
 
-int rl_hash_iterator_next(rl_hash_iterator *iterator, unsigned char **field, long *fieldlen, unsigned char **member, long *memberlen)
+int rl_hash_iterator_next(rl_hash_iterator *iterator, long *fieldpage, unsigned char **field, long *fieldlen, long *memberpage, unsigned char **member, long *memberlen)
 {
 	void *tmp;
 	rl_hashkey *hashkey = NULL;
@@ -515,6 +515,9 @@ int rl_hash_iterator_next(rl_hash_iterator *iterator, unsigned char **field, lon
 	RL_CALL(rl_btree_iterator_next, RL_OK, iterator, NULL, &tmp);
 	hashkey = tmp;
 
+	if (fieldpage) {
+		*fieldpage = hashkey->string_page;
+	}
 	if (fieldlen) {
 		retval = rl_multi_string_get(iterator->db, hashkey->string_page, field, fieldlen);
 		if (retval != RL_OK) {
@@ -523,6 +526,9 @@ int rl_hash_iterator_next(rl_hash_iterator *iterator, unsigned char **field, lon
 		}
 	}
 
+	if (memberpage) {
+		*memberpage = hashkey->value_page;
+	}
 	if (memberlen) {
 		retval = rl_multi_string_get(iterator->db, hashkey->value_page, member, memberlen);
 		if (retval != RL_OK) {

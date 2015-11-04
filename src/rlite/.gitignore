@@ -1,5 +1,5 @@
-*.o
 *.a
+*.o
 /src/*-test
 /src/rlite-test.rld
 *.gcov

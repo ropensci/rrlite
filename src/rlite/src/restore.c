@@ -1,10 +1,10 @@
 #include <arpa/inet.h>
-#include "page_key.h"
+#include "rlite/page_key.h"
 #include "rlite.h"
-#include "util.h"
-#include "crc64.h"
-#include "endianconv.h"
-#include "lzf.h"
+#include "rlite/util.h"
+#include "rlite/crc64.h"
+#include "rlite/endianconv.h"
+#include "rlite/lzf.h"
 
 struct stringwithlength {
 	unsigned char *string;
@@ -26,10 +26,9 @@ int ucread(struct rl_restore_streamer *streamer, unsigned char *str, long len) {
 
 static rl_restore_streamer* init_string_streamer(unsigned char *data, long datalen)
 {
-	rl_restore_streamer *streamer = rl_malloc(sizeof(*streamer));
-	if (!streamer) {
-		return NULL;
-	}
+	int retval;
+	rl_restore_streamer *streamer;
+	RL_MALLOC(streamer, sizeof(*streamer));
 	struct stringwithlength *s = rl_malloc(sizeof(*s));
 	if (!s) {
 		rl_free(streamer);
@@ -39,6 +38,7 @@ static rl_restore_streamer* init_string_streamer(unsigned char *data, long datal
 	s->stringlen = datalen;
 	streamer->context = s;
 	streamer->read = &ucread;
+cleanup:
 	return streamer;
 }
 
@@ -299,13 +299,13 @@ static int read_string(rl_restore_streamer *streamer, unsigned char **str, long 
 		RL_CALL(read_length_with_encoding, RL_OK, streamer, &cdatalen, NULL);
 		RL_CALL(read_length_with_encoding, RL_OK, streamer, &strdatalen, NULL);
 		strdata = rl_malloc(strdatalen * sizeof(unsigned char));
-		unsigned char *cdata = malloc(sizeof(unsigned char) * cdatalen);
+		unsigned char *cdata = rl_malloc(sizeof(unsigned char) * cdatalen);
 		RL_CALL(read, RL_OK, streamer, cdata, cdatalen);
 		rl_lzf_decompress(cdata, cdatalen, strdata, strdatalen);
-		free(cdata);
+		rl_free(cdata);
 	} else if (!is_encoded) {
 		strdatalen = length;
-		strdata = rl_malloc(strdatalen * sizeof(unsigned char));
+		RL_MALLOC(strdata, strdatalen * sizeof(unsigned char));
 		RL_CALL(read, RL_OK, streamer, strdata, strdatalen);
 	} else {
 		retval = RL_NOT_IMPLEMENTED;
@@ -314,6 +314,9 @@ static int read_string(rl_restore_streamer *streamer, unsigned char **str, long 
 	*str = strdata;
 	*strlen = strdatalen;
 cleanup:
+	if (retval != RL_OK) {
+		rl_free(strdata);
+	}
 	return retval;
 }
 
@@ -520,7 +523,6 @@ int rl_restore(struct rlite *db, const unsigned char *key, long keylen, unsigned
 	RL_CALL(verify, RL_OK, data, datalen);
 	streamer = init_string_streamer(data, datalen);
 	if (!streamer) {
-		retval = RL_OUT_OF_MEMORY;
 		goto cleanup;
 	}
 	RL_CALL(rl_restore_stream, RL_OK, db, key, keylen, expires, streamer);

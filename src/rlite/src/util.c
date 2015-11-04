@@ -2,15 +2,15 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
-#include "sha1.h"
+#include "rlite/sha1.h"
 #ifdef RL_DEBUG
 #include <unistd.h>
 #include <sys/stat.h>
 #include <execinfo.h>
 #include <valgrind/valgrind.h>
 #endif
-#include "status.h"
-#include "util.h"
+#include "rlite/status.h"
+#include "rlite/util.h"
 #include <sys/time.h>
 
 int _sha1_formatter(unsigned char *data, char formatted[40])
@@ -27,6 +27,7 @@ int _sha1_formatter(unsigned char *data, char formatted[40])
 #ifdef RL_DEBUG
 
 int test_mode = 0;
+size_t test_mode_counter;
 int failed = 0;
 
 int expect_fail()
@@ -36,67 +37,35 @@ int expect_fail()
 
 void *rl_malloc(size_t size)
 {
+	return rl_realloc(NULL, size);
+}
+
+void *rl_realloc(void *ptr, size_t size)
+{
 	if (test_mode == 0) {
-		return malloc(size);
+		return realloc(ptr, size);
 	}
-	unsigned char digest[20];
-	char hexdigest[41];
-	int j, nptrs;
-	void *r;
+	int nptrs;
 #define SIZE 1000
 	void *buffer[SIZE];
 	char **strings;
 	nptrs = backtrace(buffer, SIZE);
 	strings = backtrace_symbols(buffer, nptrs);
 	if (strings == NULL) {
-		return NULL;
+		exit(1);
 	}
 
-	SHA1_CTX sha;
-	SHA1Init(&sha);
-	for (j = 0; j < nptrs; j++) {
-		SHA1Update(&sha, (unsigned char *)strings[j], strlen(strings[j]));
-	}
-	SHA1Final(digest, &sha);
-
-	_sha1_formatter(digest, hexdigest);
-
-	const char *dir = "malloc-debug";
-	char subdir[100];
-	mkdir(dir, 0777);
-	long i = strlen(dir);
-	memcpy(subdir, dir, strlen(dir));
-	subdir[i] = '/';
-	subdir[i + 1] = hexdigest[0];
-	subdir[i + 2] = hexdigest[1];
-	subdir[i + 3] = 0;
-	mkdir(subdir, 0777);
-	subdir[i + 3] = '/';
-
-	for (j = 0; j < 38; j++) {
-		subdir[i + 4 + j] = hexdigest[2 + j];
-	}
-	subdir[42] = 0;
-
-	if (access(subdir, F_OK) == 0) {
-		r = malloc(size);
-	}
-	else {
-		hexdigest[40] = 0;
-		fprintf(stderr, "Failing malloc on %s\n", hexdigest);
-
-		FILE *fp = fopen(subdir, "w");
-		for (j = 0; j < nptrs; j++) {
-			fwrite(strings[j], 1, strlen(strings[j]), fp);
-			fwrite("\n", 1, 1, fp);
+	int i;
+	for (i = 1; i < nptrs; i++) {
+		if (--test_mode_counter == 0) {
+			test_mode = 0;
+			// for (i = 1; i < nptrs; i++) { fprintf(stderr, "%s\n", strings[i]); }
+			free(strings);
+			return NULL;
 		}
-		fclose(fp);
-		failed = 1;
-		fprintf(stderr, "Simulating OOM\n");
-		r = NULL;
 	}
 	free(strings);
-	return r;
+	return realloc(ptr, size);
 }
 
 void rl_free(void *ptr)
@@ -170,13 +139,16 @@ int long_formatter(void *v2, char **formatted, int *size)
 	return RL_OK;
 }
 
+#endif
+
 int sha1_formatter(void *v2, char **formatted, int *size)
 {
 	unsigned char *data = (unsigned char *)v2;
-	*formatted = rl_malloc(sizeof(char) * 40);
+	*formatted = rl_malloc(sizeof(char) * 41);
 	if (*formatted == NULL) {
 		return RL_OUT_OF_MEMORY;
 	}
+	(*formatted)[40] = 0;
 	_sha1_formatter(data, *formatted);
 	if (size) {
 		*size = 40;
@@ -184,7 +156,6 @@ int sha1_formatter(void *v2, char **formatted, int *size)
 	return RL_OK;
 }
 
-#endif
 
 // Code for serialize/deserialize double comes from
 // http://beej.us/guide/bgnet/output/html/singlepage/bgnet.html#serialization
@@ -331,4 +302,25 @@ double rl_strtod(unsigned char *_str, long strlen, unsigned char **_eptr) {
 		*_eptr = _str + (eptr - str);
 	}
 	return d;
+}
+
+char *rl_get_filename_with_suffix(const char *filename, char *suffix) {
+	int retval = RL_OK;
+	char *new_path = NULL;
+	size_t i, last_slash = 0, filenamelen = strlen(filename);
+	size_t suffixlen = strlen(suffix);
+	// Adding "." to the beginning of the filename, and null termination
+	RL_MALLOC(new_path, sizeof(char) * (filenamelen + suffixlen + 2));
+	for (i = filenamelen - 1; i > 0; i--) {
+		if (filename[i] == '/') {
+			last_slash = i + 1;
+			break;
+		}
+	}
+	memcpy(new_path, filename, last_slash);
+	new_path[last_slash] = '.';
+	memcpy(&new_path[last_slash + 1], &filename[last_slash], filenamelen - last_slash);
+	memcpy(&new_path[filenamelen + 1], suffix, suffixlen + 1);
+cleanup:
+	return new_path;
 }

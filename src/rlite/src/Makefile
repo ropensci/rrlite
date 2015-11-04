@@ -8,14 +8,14 @@
 
 uname_S:= $(shell sh -c 'uname -s 2>/dev/null || echo not')
 
-OBJ=rlite.o page_skiplist.o page_string.o page_list.o page_btree.o page_key.o page_multi_string.o page_long.o type_string.o type_list.o type_set.o type_zset.o type_hash.o util.o restore.o dump.o sort.o pqsort.o utilfromredis.o hyperloglog.o sha1.o crc64.o lzf_c.o lzf_d.o scripting.o rand.o hirlite.o
+OBJ=rlite.o page_skiplist.o page_string.o page_list.o page_btree.o page_key.o page_multi_string.o page_long.o type_string.o type_list.o type_set.o type_zset.o type_hash.o util.o restore.o dump.o sort.o pqsort.o utilfromredis.o hyperloglog.o sha1.o crc64.o lzf_c.o lzf_d.o scripting.o rand.o flock_posix.o signal_posix.o pubsub.o wal.o hirlite.o
 LUA_OBJ=../deps/lua/src/lapi.o ../deps/lua/src/lcode.o ../deps/lua/src/ldebug.o ../deps/lua/src/ldo.o ../deps/lua/src/ldump.o ../deps/lua/src/lfunc.o ../deps/lua/src/lgc.o ../deps/lua/src/llex.o ../deps/lua/src/lmem.o ../deps/lua/src/lobject.o ../deps/lua/src/lopcodes.o ../deps/lua/src/lparser.o ../deps/lua/src/lstate.o  ../deps/lua/src/lstring.o ../deps/lua/src/ltable.o ../deps/lua/src/ltm.o ../deps/lua/src/lundump.o ../deps/lua/src/lvm.o ../deps/lua/src/lzio.o ../deps/lua/src/strbuf.o ../deps/lua/src/fpconv.o ../deps/lua/src/lauxlib.o ../deps/lua/src/lbaselib.o ../deps/lua/src/ldblib.o ../deps/lua/src/liolib.o ../deps/lua/src/lmathlib.o ../deps/lua/src/loslib.o ../deps/lua/src/ltablib.o ../deps/lua/src/lstrlib.o ../deps/lua/src/loadlib.o ../deps/lua/src/linit.o ../deps/lua/src/lua_cjson.o ../deps/lua/src/lua_struct.o ../deps/lua/src/lua_cmsgpack.o ../deps/lua/src/lua_bit.o
 LIBNAME=libhirlite
 PKGCONFNAME=hirlite.pc
 
-HIRLITE_MAJOR=$(shell grep HIRLITE_MAJOR hirlite.h | awk '{print $$3}')
-HIRLITE_MINOR=$(shell grep HIRLITE_MINOR hirlite.h | awk '{print $$3}')
-HIRLITE_PATCH=$(shell grep HIRLITE_PATCH hirlite.h | awk '{print $$3}')
+HIRLITE_MAJOR=$(shell grep HIRLITE_MAJOR rlite/hirlite.h | awk '{print $$3}')
+HIRLITE_MINOR=$(shell grep HIRLITE_MINOR rlite/hirlite.h | awk '{print $$3}')
+HIRLITE_PATCH=$(shell grep HIRLITE_PATCH rlite/hirlite.h | awk '{print $$3}')
 
 OPTIMIZATION?=-O2
 ifeq ($(uname_S),SunOS)
@@ -28,7 +28,6 @@ endif
 
 CFLAGS +=  -I./ -I../deps/lua/src/
 
-DEBUG.gcc += -rdynamic
 CFLAGS.gcc += -std=c99
 
 ifeq ($(shell $(CC) -v 2>&1 | grep -c "clang version"), 1)
@@ -39,7 +38,11 @@ DEBUG += ${DEBUG.gcc}
 CFLAGS += ${CFLAGS.gcc}
 endif
 
-LIBS=-lm
+ifeq ($(RL_DEBUG), 1)
+CFLAGS += -DRL_DEBUG=1 -g -rdynamic
+endif
+
+LIBS=-lm -lpthread
 
 INSTALL?= cp -a
 # Installation related variables and target
@@ -71,14 +74,6 @@ STLIBNAME=$(LIBNAME).$(STLIBSUFFIX)
 
 all: $(DYLIBNAME) $(STLIBNAME)
 
-gcov: CFLAGS += -fprofile-arcs -ftest-coverage
-gcov: clean test
-
-builddebug: CFLAGS += -DDEBUG=1
-builddebug: clean buildtest
-
-debug: builddebug vtest
-
 ifeq ($(uname_S),SunOS)
 	# Make isinf() available
 	LUA_CFLAGS= -D__C99FEATURES__=1
@@ -89,16 +84,19 @@ LUA_STLIB=../deps/lua/src/liblua.a
 AR=ar
 ARFLAGS=rcu
 
+.PHONY: lua gcov lcov clang-analyzer test buildtest vtest vtestoom clean
+
 lua:
 	cd ../deps/lua && $(MAKE) ansi CFLAGS="$(LUA_CFLAGS)" MYLDFLAGS="$(LUA_LDFLAGS)" AR="$(AR) $(ARFLAGS)"
+
+gcov: CFLAGS += -fprofile-arcs -ftest-coverage
+gcov: clean $(STLIBNAME)
+	cd ../tests/ && $(MAKE) gcov
 
 lcov: gcov
 	mkdir -p lcov
 	lcov --directory . --capture --output-file lcov/app.info
 	genhtml  lcov/app.info -o lcov/html
-
-full-lcov: CFLAGS += -fprofile-arcs -ftest-coverage -DDEBUG=1
-full-lcov: clean buildtest
 
 clang-analyzer:
 	rm -rf analyzer
@@ -108,24 +106,25 @@ clang-analyzer:
 	$(CC) $(ARCH) $(DEBUG) $(CFLAGS) -c $<
 
 $(DYLIBNAME): $(OBJ) lua
+	rm -f $(DYLIBNAME)
 	$(DYLIB_MAKE_CMD) $(LUA_OBJ) $(OBJ)
 
 $(STLIBNAME): $(OBJ)
 	ar -cq libhirlite.a $(OBJ)
 
-buildtest: $(STLIBNAME) ../tests/rlite-test.o ../tests/btree-test.o ../tests/list-test.o ../tests/string-test.o ../tests/multi_string-test.o ../tests/multi-test.o ../tests/key-test.o ../tests/type_string-test.o ../tests/type_list-test.o ../tests/type_set-test.o ../tests/type_zset-test.o ../tests/type_hash-test.o ../tests/skiplist-test.o ../tests/long-test.o ../tests/restore-test.o ../tests/hyperloglog-test.o ../tests/dump-test.o ../tests/sort-test.o ../tests/test_util.o ../tests/test.o ../tests/echo.o ../tests/hash.o ../tests/list.o ../tests/parser.o ../tests/set.o ../tests/string.o ../tests/test_hirlite.o ../tests/zset.o ../tests/db.o ../tests/multi.o ../tests/hsort.o ../tests/scripting-test.o
-	$(CC) $(DEBUG) $(CFLAGS) -o rlite-test test.o rlite-test.o btree-test.o list-test.o string-test.o multi_string-test.o multi-test.o key-test.o type_string-test.o type_list-test.o type_set-test.o type_zset-test.o type_hash-test.o skiplist-test.o long-test.o restore-test.o hyperloglog-test.o dump-test.o sort-test.o test_util.o $(STLIBNAME) $(LIBS)
-	$(CC) $(DEBUG) $(CFLAGS) -o hirlite-test echo.o hash.o list.o parser.o set.o string.o test_hirlite.o zset.o db.o multi.o hsort.o scripting-test.o $(STLIBNAME) $(LUA_STLIB) $(LIBS)
+buildtest: $(STLIBNAME)
+	cd ../tests/ && $(MAKE) buildtest
 
-test: buildtest
-	./rlite-test
-	./hirlite-test
+test: $(STLIBNAME)
+	cd ../tests/ && $(MAKE) test
 
-vtest: buildtest
-	valgrind --track-origins=yes --leak-check=full --show-reachable=yes ./rlite-test
-	valgrind --track-origins=yes --leak-check=full --show-reachable=yes ./hirlite-test
+vtest: $(STLIBNAME)
+	cd ../tests/ && $(MAKE) vtest
 
-$(PKGCONFNAME): hirlite.h
+vtestoom: $(STLIBNAME)
+	cd ../tests/ && $(MAKE) vtestoom
+
+$(PKGCONFNAME): rlite/hirlite.h
 	@echo "Generating $@ for pkgconfig..."
 	@echo prefix=$(PREFIX) > $@
 	@echo exec_prefix=$${prefix} >> $@
@@ -150,3 +149,4 @@ install: $(DYLIBNAME) $(STLIBNAME) $(PKGCONFNAME)
 
 clean:
 	rm -rf *-test *.o *.a *.dSYM *.gcda *.gcno lcov *.dylib ./deps/lua/src/*.a
+	cd ../tests && $(MAKE) clean

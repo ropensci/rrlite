@@ -29,7 +29,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include "hyperloglog.h"
+#include "rlite/util.h"
+#include "rlite/hyperloglog.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -563,7 +564,7 @@ static double hllDenseSum(uint8_t *registers, double *PE, int *ezp) {
 
 /* Convert the HLL with sparse representation given as input in its dense
  * representation. Both representations are represented by SDS strings, and
- * the input representation is freed as a side effect.
+ * the input representation is rl_freed as a side effect.
  *
  * The function returns 0 if the sparse representation was valid,
  * otherwise 1 is returned if the representation was corrupted. */
@@ -611,12 +612,12 @@ static int hllSparseToDense(unsigned char *sparse, long sparselen, unsigned char
     /* If the sparse representation was valid, we expect to find idx
      * set to HLL_REGISTERS. */
     if (idx != HLL_REGISTERS) {
-        free(dense);
+        rl_free(dense);
         return 1;
     }
 
     /* Free the old representation and set the new one. */
-    free(sparse);
+    rl_free(sparse);
     *newstr = dense;
     *newstrlen = HLL_DENSE_SIZE;
     return 0;
@@ -657,7 +658,7 @@ static int hllSparseAdd(unsigned char *str, long strlen, unsigned char *ele, siz
      * into XZERO-VAL-XZERO). Make sure there is enough space right now
      * so that the pointers we take during the execution of the function
      * will be valid all the time. */
-    tmp = realloc(str, sizeof(unsigned char) * (strlen + 3));
+    tmp = rl_realloc(str, sizeof(unsigned char) * (strlen + 3));
     if (!tmp) {
         return 1;
     }
@@ -1419,8 +1420,8 @@ int rl_str_pfselftest() {
     retval = 0;
 
 cleanup:
-    free(bitcounters);
-    free(o);
+    rl_free(bitcounters);
+    rl_free(o);
     return retval;
 }
 
@@ -1439,7 +1440,7 @@ int rl_str_pfdebug_getreg(unsigned char *str, long strlen, int *size, long **ele
     hdr = (struct hllhdr *)str;
 
     *size = HLL_REGISTERS;
-    *elements = malloc(sizeof(long) * HLL_REGISTERS);
+    *elements = rl_malloc(sizeof(long) * HLL_REGISTERS);
     if (!*elements) {
         return -3;
     }
@@ -1456,9 +1457,9 @@ int rl_str_pfdebug_getreg(unsigned char *str, long strlen, int *size, long **ele
 
 #define APPEND(obj, objlen, objalloc, src, srclen)\
     while (objlen + srclen > objalloc) {\
-        unsigned char *tmp = realloc(obj, sizeof(unsigned char) * objalloc * 2);\
+        unsigned char *tmp = rl_realloc(obj, sizeof(unsigned char) * objalloc * 2);\
         if (!tmp) {\
-            free(obj);\
+            rl_free(obj);\
             return -4;\
         }\
         obj = tmp;\
@@ -1480,7 +1481,7 @@ int rl_str_pfdebug_decode(unsigned char *str, long strlen, unsigned char **respo
     uint8_t *p = str, *end = p+strlen;
     long decodedlen = 0;
     long decodedall = strlen * 10;
-    unsigned char *decoded = malloc(sizeof(unsigned char) * decodedall);
+    unsigned char *decoded = rl_malloc(sizeof(unsigned char) * decodedall);
     char tmp[100];
     long tmplen;
 
@@ -1507,7 +1508,7 @@ int rl_str_pfdebug_decode(unsigned char *str, long strlen, unsigned char **respo
         }
     }
     decodedlen--;
-    decoded = realloc(decoded, sizeof(unsigned char) * (decodedlen));
+    decoded = rl_realloc(decoded, sizeof(unsigned char) * (decodedlen));
     *response = decoded;
     *responselen = decodedlen;
     return 0;
@@ -1522,7 +1523,7 @@ int rl_str_pfdebug_encoding(unsigned char *str, long strlen, unsigned char **res
     char *encodingstr[2] = {"dense","sparse"};
 
     *responselen = 5 + hdr->encoding;
-    *response = malloc(sizeof(unsigned char) * (*responselen));
+    *response = rl_malloc(sizeof(unsigned char) * (*responselen));
     memcpy(*response, encodingstr[hdr->encoding], *responselen);
     return 0;
 }

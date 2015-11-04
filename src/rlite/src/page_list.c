@@ -3,10 +3,10 @@
 #include <stdio.h>
 #include <math.h>
 #include "rlite.h"
-#include "status.h"
-#include "page_list.h"
-#include "page_string.h"
-#include "util.h"
+#include "rlite/status.h"
+#include "rlite/page_list.h"
+#include "rlite/page_string.h"
+#include "rlite/util.h"
 
 #ifdef RL_DEBUG
 int rl_print_list_node(rl_list *list, rl_list_node *node);
@@ -14,8 +14,8 @@ int rl_print_list_node(rl_list *list, rl_list_node *node);
 int rl_list_node_create(rlite *db, rl_list *list, rl_list_node **node);
 
 rl_list_type rl_list_type_long = {
-	0,
-	0,
+	&rl_data_type_list_long,
+	&rl_data_type_list_node_long,
 	sizeof(long),
 	long_cmp,
 #ifdef RL_DEBUG
@@ -86,12 +86,6 @@ cleanup:
 		rl_list_node_destroy(db, node);
 	}
 	return retval;
-}
-
-void rl_list_init()
-{
-	rl_list_type_long.list_type = &rl_data_type_list_long;
-	rl_list_type_long.list_node_type = &rl_data_type_list_node_long;
 }
 
 int rl_list_node_create(rlite *UNUSED(db), rl_list *list, rl_list_node **_node)
@@ -419,10 +413,7 @@ int rl_list_remove_element(rlite *db, rl_list *list, long list_page, long positi
 				rl_free(node->elements);
 				node->elements = NULL;
 
-				rl_delete(db, number);
-				if (retval != RL_OK) {
-					goto cleanup;
-				}
+				RL_CALL(rl_delete, RL_OK, db, number);
 				goto succeeded;
 			}
 		}
@@ -448,10 +439,7 @@ int rl_list_remove_element(rlite *db, rl_list *list, long list_page, long positi
 				rl_free(node->elements);
 				node->elements = NULL;
 
-				rl_delete(db, number);
-				if (retval != RL_OK) {
-					goto cleanup;
-				}
+				RL_CALL(rl_delete, RL_OK, db, number);
 				goto succeeded;
 			}
 		}
@@ -479,7 +467,7 @@ int rl_list_is_balanced(rlite *db, rl_list *list)
 	long max_node = (list->size / list->max_node_size + 1) * 2;
 	int retval = RL_OK;
 	long *left = NULL;
-	long *right;
+	long *right = NULL;
 	RL_MALLOC(right, sizeof(long) * max_node);
 	RL_MALLOC(left, sizeof(long) * max_node);
 	rl_list_node *node;
@@ -611,6 +599,7 @@ int rl_list_iterator_create(rlite *db, rl_list_iterator **_iterator, rl_list *li
 	RL_MALLOC(iterator, sizeof(*iterator));
 	iterator->db = db;
 	iterator->list = list;
+	iterator->node = NULL;
 	if (direction < 0) {
 		iterator->direction = -1;
 		RL_CALL(rl_read, RL_FOUND, db, list->type->list_node_type, list->right, list, &_node, 0);
@@ -626,7 +615,7 @@ int rl_list_iterator_create(rlite *db, rl_list_iterator **_iterator, rl_list *li
 	*_iterator = iterator;
 	retval = RL_OK;
 cleanup:
-	if (retval != RL_OK) {
+	if (iterator && retval != RL_OK) {
 		rl_list_iterator_destroy(db, iterator);
 	}
 	return retval;
@@ -671,9 +660,6 @@ int rl_list_iterator_next(rl_list_iterator *iterator, void **element)
 	retval = RL_OK;
 cleanup:
 	if (retval != RL_OK) {
-		if (iterator->node) {
-			rl_list_node_nocache_destroy(iterator->db, iterator->node);
-		}
 		rl_list_iterator_destroy(iterator->db, iterator);
 	}
 	return retval;

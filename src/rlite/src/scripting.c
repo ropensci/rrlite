@@ -29,10 +29,10 @@
  */
 
 #include "rlite.h"
-#include "hirlite.h"
-#include "sha1.h"
-#include "rand.h"
-#include "constants.h"
+#include "rlite/hirlite.h"
+#include "rlite/sha1.h"
+#include "rlite/rand.h"
+#include "rlite/constants.h"
 
 #include <lua.h>
 #include <lauxlib.h>
@@ -52,25 +52,23 @@ static int setScript(rliteClient *c, char *script, long scriptlen) {
 	int retval;
 	char hash[40];
 	sha1hex(hash, script, scriptlen);
-	int selected_database = c->context->db->selected_database;
-	c->context->db->selected_database = c->context->db->number_of_databases;
+	RL_CALL(rl_select_internal, RL_OK, c->context->db, RLITE_INTERNAL_DB_LUA);
 
 	RL_CALL(rl_set, RL_OK, c->context->db, (unsigned char *)hash, 40, (unsigned char *)script, scriptlen, 0, 0);
 
 cleanup:
-	c->context->db->selected_database = selected_database;
+	rl_select_internal(c->context->db, RLITE_INTERNAL_DB_NO);
 	return retval;
 }
 
 static int getScript(rliteClient *c, char hash[40], char **script, long *scriptlen) {
 	int retval;
-	int selected_database = c->context->db->selected_database;
-	c->context->db->selected_database = c->context->db->number_of_databases;
+	RL_CALL(rl_select_internal, RL_OK, c->context->db, RLITE_INTERNAL_DB_LUA);
 
 	RL_CALL(rl_get, RL_OK, c->context->db, (unsigned char *)hash, 40, (unsigned char **)script, scriptlen);
 
 cleanup:
-	c->context->db->selected_database = selected_database;
+	rl_select_internal(c->context->db, RLITE_INTERNAL_DB_NO);
 	return retval;
 }
 
@@ -111,6 +109,9 @@ void rliteToLuaType(lua_State *lua, rliteReply *reply) {
 	switch(reply->type) {
 	case RLITE_REPLY_INTEGER:
 		rliteToLuaType_Int(lua,reply);
+		break;
+	case RLITE_REPLY_NIL:
+		lua_pushboolean(lua,0);
 		break;
 	case RLITE_REPLY_STRING:
 		rliteToLuaType_Bulk(lua,reply);
@@ -169,11 +170,11 @@ void luaPushError(lua_State *lua, char *error) {
 	if(lua_getstack(lua, 1, &dbg) && lua_getinfo(lua, "nSl", &dbg)) {
 		// 4 for formatting, 1 for null termination, 35 ought to be enough for an integer
 		size_t len = strlen(dbg.source) + strlen(error) + 40;
-		char *msg = malloc(sizeof(char) * len);
+		char *msg = rl_malloc(sizeof(char) * len);
 		snprintf(msg, len, "%s: %d: %s",
 			dbg.source, dbg.currentline, error);
 		lua_pushstring(lua, msg);
-		free(msg);
+		rl_free(msg);
 	} else {
 		lua_pushstring(lua, error);
 	}
@@ -259,8 +260,8 @@ int luaRedisGenericCommand(lua_State *lua, int raise_error) {
 
 	/* Build the arguments vector */
 	if (argv_size < argc) {
-		argv = realloc(argv, sizeof(char *) * argc);
-		argvlen = realloc(argvlen, sizeof(size_t) * argc);
+		argv = rl_realloc(argv, sizeof(char *) * argc);
+		argvlen = rl_realloc(argvlen, sizeof(size_t) * argc);
 		argv_size = argc;
 	}
 
@@ -291,7 +292,7 @@ int luaRedisGenericCommand(lua_State *lua, int raise_error) {
 	if (j != argc) {
 		j--;
 		while (j >= 0) {
-			free(argv[j]);
+			rl_free(argv[j]);
 			j--;
 		}
 		luaPushError(lua,
@@ -353,7 +354,7 @@ int luaRedisGenericCommand(lua_State *lua, int raise_error) {
 	rliteFreeReplyObject(reply);
 cleanup:
 	if (c->argv != argv) {
-		free(c->argv);
+		rl_free(c->argv);
 		argv = NULL;
 		argv_size = 0;
 	}
@@ -447,24 +448,24 @@ int luaLogCommand(lua_State *lua) {
 	}
 
 	size_t totalsize = 0;
-	strs = malloc(sizeof(char *) * (argc - 1));
+	strs = rl_malloc(sizeof(char *) * (argc - 1));
 	if (!strs) {
 		return 1;
 	}
-	strlens = malloc(sizeof(size_t) * (argc - 1));
+	strlens = rl_malloc(sizeof(size_t) * (argc - 1));
 	if (!strlens) {
-		free(strs);
+		rl_free(strs);
 		return 1;
 	}
-	strlens = malloc(sizeof(size_t) * (argc - 1));
+	strlens = rl_malloc(sizeof(size_t) * (argc - 1));
 	for (j = 1; j < argc; j++) {
 		strs[j - 1] = (char*)lua_tolstring(lua,(-argc)+j,&strlens[j - 1]);
 		totalsize += strlens[j - 1];
 	}
-	log = malloc(sizeof(char) * (totalsize + 1));
+	log = rl_malloc(sizeof(char) * (totalsize + 1));
 	if (!log) {
-		free(strs);
-		free(strlens);
+		rl_free(strs);
+		rl_free(strlens);
 		return 1;
 	}
 
@@ -676,7 +677,7 @@ void scriptingInit(void) {
 	 * Note: there is no need to create it again when this function is called
 	 * by scriptingReset(). */
 	if (lua_client == NULL) {
-		lua_client = malloc(sizeof(*lua_client));
+		lua_client = rl_malloc(sizeof(*lua_client));
 
 		lua_client->flags = RLITE_LUA_CLIENT;
 	}
@@ -725,7 +726,7 @@ rliteReply *luaReplyToStringReply(int type) {
 	rliteReply* reply;
 	const char *_err = lua_tostring(lua,-1);
 	size_t i, len = strlen(_err);
-	char *err = malloc(sizeof(char) * (len + 1));
+	char *err = rl_malloc(sizeof(char) * (len + 1));
 	if (!err) {
 		return NULL;
 	}
@@ -735,7 +736,7 @@ rliteReply *luaReplyToStringReply(int type) {
 	}
 	err[len] = '\0';
 	reply = createStringTypeObject(type, err, len);
-	free(err);
+	rl_free(err);
 	return reply;
 }
 void luaReplyToRedisReply(rliteClient *c, lua_State *lua) {
@@ -791,7 +792,7 @@ void luaReplyToRedisReply(rliteClient *c, lua_State *lua) {
 				}
 				luaReplyToRedisReply(c, lua);
 				if (j - 2 == reply->elements) {
-					tmp = realloc(reply->element, sizeof(rliteReply *) * reply->elements * 2);
+					tmp = rl_realloc(reply->element, sizeof(rliteReply *) * reply->elements * 2);
 					if (!tmp) {
 						// TODO: free stuff, panic
 						c->reply = NULL;
@@ -840,7 +841,7 @@ int luaCreateFunction(rliteClient *c, lua_State *lua, char *funcname, char *body
 	const char *end = " end";
 	size_t funcnamelen = 42;
 	size_t funcdeflen = bodylen + funcnamelen + strlen(f) + strlen(params) + strlen(end) + 1;
-	char *funcdef = malloc(sizeof(char) * funcdeflen);
+	char *funcdef = rl_malloc(sizeof(char) * funcdeflen);
 
 
 	strcpy(funcdef, f);
@@ -866,10 +867,10 @@ int luaCreateFunction(rliteClient *c, lua_State *lua, char *funcname, char *body
 			lua_tostring(lua,-1));
 		c->reply = createErrorObject(err);
 		lua_pop(lua,1);
-		free(funcdef);
+		rl_free(funcdef);
 		return RLITE_ERR;
 	}
-	free(funcdef);
+	rl_free(funcdef);
 	if (lua_pcall(lua,0,0,0)) {
 		char err[1024];
 		snprintf(err, 1024, "ERR Error running script (new function): %s",

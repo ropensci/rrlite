@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "rlite.h"
-#include "page_long.h"
-#include "util.h"
+#include "rlite/page_long.h"
+#include "rlite/util.h"
 
 int rl_long_serialize(rlite *UNUSED(db), void *obj, unsigned char *data)
 {
@@ -24,7 +24,7 @@ cleanup:
 
 int rl_long_destroy(rlite *UNUSED(db), void *obj)
 {
-	free(obj);
+	rl_free(obj);
 	return RL_OK;
 }
 

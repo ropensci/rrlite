@@ -1,11 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
-#include "sha1.h"
+#include "rlite/sha1.h"
 #include "rlite.h"
-#include "page_list.h"
-#include "page_string.h"
-#include "page_multi_string.h"
-#include "util.h"
+#include "rlite/page_list.h"
+#include "rlite/page_string.h"
+#include "rlite/page_multi_string.h"
+#include "rlite/util.h"
 
 int rl_normalize_string_range(long totalsize, long *start, long *stop)
 {
@@ -178,15 +178,12 @@ cleanup:
 static int append(struct rlite *db, rl_list *list, long list_page_number, const unsigned char *data, long size)
 {
 	int retval = RL_OK;
-	long *page;
+	long *page = NULL;
 	long pos = 0, to_copy;
 	unsigned char *string = NULL;
 	while (pos < size) {
 		RL_MALLOC(page, sizeof(*page));
-		retval = rl_string_create(db, &string, page);
-		if (retval != RL_OK) {
-			goto cleanup;
-		}
+		RL_CALL(rl_string_create, RL_OK, db, &string, page);
 		to_copy = db->page_size;
 		if (pos + to_copy > size) {
 			to_copy = size - pos;
@@ -247,6 +244,67 @@ int rl_multi_string_append(struct rlite *db, long number, const unsigned char *d
 
 	retval = RL_OK;
 cleanup:
+	return retval;
+}
+
+int rl_multi_string_cpyrange(struct rlite *db, long number, unsigned char *data, long *_size, long start, long stop)
+{
+	long totalsize;
+	rl_list *list = NULL;
+	rl_list_node *node = NULL;
+	void *_list, *tmp;
+	int retval;
+	RL_CALL(rl_read, RL_FOUND, db, &rl_data_type_list_long, number, &rl_list_type_long, &_list, 0);
+	list = _list;
+	unsigned char *tmp_data;
+	long i, pos = 0, pagesize, pagestart;
+	long size;
+
+	RL_CALL(rl_list_get_element, RL_FOUND, db, list, &tmp, 0);
+	totalsize = *(long *)tmp;
+	if (totalsize == 0) {
+		if (_size) {
+			*_size = 0;
+		}
+		retval = RL_OK;
+		goto cleanup;
+	}
+	rl_normalize_string_range(totalsize, &start, &stop);
+	if (stop < start) {
+		if (_size) {
+			*_size = 0;
+		}
+		retval = RL_OK;
+		goto cleanup;
+	}
+	size = stop - start + 1;
+	if (_size) {
+		*_size = size;
+	}
+
+	i = start / db->page_size;
+	pagestart = start % db->page_size;
+	// pos = i * db->page_size + pagestart;
+	// the first element in the list is the length of the array, skip to the second
+	for (i++; i < list->size; i++) {
+		RL_CALL(rl_list_get_element, RL_FOUND, db, list, &tmp, i);
+		RL_CALL(rl_string_get, RL_OK, db, &tmp_data, *(long *)tmp);
+		pagesize = db->page_size - pagestart;
+		if (pos + pagesize > size) {
+			pagesize = size - pos;
+		}
+		memcpy(&data[pos], &tmp_data[pagestart], sizeof(unsigned char) * pagesize);
+		pos += pagesize;
+		pagestart = 0;
+	}
+	retval = RL_OK;
+cleanup:
+	if (list) {
+		rl_list_nocache_destroy(db, list);
+	}
+	if (node) {
+		rl_list_node_nocache_destroy(db, node);
+	}
 	return retval;
 }
 
@@ -324,6 +382,11 @@ cleanup:
 int rl_multi_string_get(struct rlite *db, long number, unsigned char **_data, long *size)
 {
 	return rl_multi_string_getrange(db, number, _data, size, 0, -1);
+}
+
+int rl_multi_string_cpy(struct rlite *db, long number, unsigned char *data, long *size)
+{
+	return rl_multi_string_cpyrange(db, number, data, size, 0, -1);
 }
 
 int rl_multi_string_set(struct rlite *db, long *number, const unsigned char *data, long size)

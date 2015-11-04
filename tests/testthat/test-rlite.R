@@ -83,7 +83,6 @@ test_that("Errors are converted", {
 ## keeping them protected appropriately.  So for now the automatically
 ## balanced approach is easiest.
 test_that("Pipelining", {
-  skip("crashes")
   ptr <- rlite_connect_unix(":memory:")
   key <- rand_str(prefix="redux_")
   cmd <- list(list("SET", key, "1"), list("GET", key))

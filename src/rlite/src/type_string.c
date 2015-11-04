@@ -3,10 +3,10 @@
 #include <math.h>
 #include <ctype.h>
 #include "rlite.h"
-#include "page_multi_string.h"
-#include "type_string.h"
-#include "util.h"
-#include "hyperloglog.h"
+#include "rlite/page_multi_string.h"
+#include "rlite/type_string.h"
+#include "rlite/util.h"
+#include "rlite/hyperloglog.h"
 
 static int rl_string_get_objects(rlite *db, const unsigned char *key, long keylen, long *_page_number, unsigned long long *expires, long *version)
 {
@@ -60,6 +60,19 @@ int rl_get(struct rlite *db, const unsigned char *key, long keylen, unsigned cha
 	RL_CALL(rl_string_get_objects, RL_OK, db, key, keylen, &page_number, NULL, NULL);
 	if (valuelen) {
 		RL_CALL(rl_multi_string_get, RL_OK, db, page_number, value, valuelen);
+	}
+	retval = RL_OK;
+cleanup:
+	return retval;
+}
+
+int rl_get_cpy(struct rlite *db, const unsigned char *key, long keylen, unsigned char *value, long *valuelen)
+{
+	long page_number;
+	int retval;
+	RL_CALL(rl_string_get_objects, RL_OK, db, key, keylen, &page_number, NULL, NULL);
+	if (value || valuelen) {
+		RL_CALL(rl_multi_string_cpy, RL_OK, db, page_number, value, valuelen);
 	}
 	retval = RL_OK;
 cleanup:
@@ -310,7 +323,7 @@ int rl_bitop(struct rlite *db, int op, const unsigned char *dest, long destlen, 
 	}
 	rl_internal_bitop(op, keyc, values, valueslen, &result, &resultlen);
 	RL_CALL(rl_set, RL_OK, db, dest, destlen, result, resultlen, 0, 0);
-	free(result);
+	rl_free(result);
 	retval = RL_OK;
 cleanup:
 	if (values) {
@@ -423,7 +436,7 @@ int rl_pfadd(struct rlite *db, const unsigned char *key, long keylen, int elemen
 	}
 	retval = RL_OK;
 cleanup:
-	free(value);
+	rl_free(value);
 	return retval;
 }
 
@@ -506,7 +519,7 @@ cleanup:
 	}
 	rl_free(argv);
 	rl_free(argvlen);
-	free(newvalue);
+	rl_free(newvalue);
 	return retval;
 }
 
@@ -529,7 +542,7 @@ int rl_pfdebug_getreg(struct rlite *db, const unsigned char *key, long keylen, i
 	}
 	retval = RL_OK;
 cleanup:
-	free(value);
+	rl_free(value);
 	return retval;
 }
 
