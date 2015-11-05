@@ -14,15 +14,18 @@
 ##' @export
 ##' @importFrom RedisAPI redis_api
 ##' @examples
-##' # Only run if a Redis server is running
-##' if (redis_available()) {
-##'   r <- hirlite()
-##'   r$PING()
-##'   r$SET("foo", "bar")
-##'   r$GET("foo")
-##' }
+##' r <- hirlite(":memory:")
+##' r$PING()
+##' r$SET("foo", "bar")
+##' r$GET("foo")
 hirlite <- function(...) {
   config <- rlite_config(...)
   con <- rlite_connection(config)
   RedisAPI::redis_api(con)
+}
+
+##' @export
+##' @rdname hirlite
+rlite_available <- function(...) {
+  !inherits(try(hirlite(...), silent=TRUE), "try-error")
 }

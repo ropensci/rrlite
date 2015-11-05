@@ -9,7 +9,7 @@ Description: R bindings to rlite.  rlite is a "self-contained,
   serverless, zero-configuration, transactional redis-compatible
   database engine. rlite is to Redis what SQLite is to SQL.".
 Depends: R (>= 3.1.0)
-License: BSD_2_clause + file LICENSE
+License: GPL-2
 LazyData: true
 Suggests: testthat, knitr, RcppRedis
 Imports: R6, RedisAPI (>= 0.3.0)

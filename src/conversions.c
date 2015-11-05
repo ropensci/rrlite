@@ -1,3 +1,4 @@
+// Automatically generated from redux:src/conversions.c: do not edit by hand
 #include "conversions.h"
 
 SEXP redis_reply_to_sexp(rliteReply* reply, int error_action) {

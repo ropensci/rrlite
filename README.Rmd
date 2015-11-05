@@ -47,26 +47,17 @@ con$write(c("set", "foo", "bar"))
 con$read()
 ```
 
-# Installation
+# Approach
 
-Because the source currently contains a submodule, the usual approach with `devtools::install_github` does not work, but this does:
+This package aims to be a drop-in self-contained replacement for `redux` without requiring  `Redis` server.  So as much of the package as possible is automaticaly generated from `redux` as possible.  The only installed files not generated are:
 
-```
-devtools::install_github("ropensci/RedisAPI")
-devtools::install_git("https://github.com/ropensci/rrlite", args="--recursive")
-```
-
-If installing manually, either clone the repository with the argument `--recursive` or after cloning the repository for the first time, run:
-
-```
-git submodule init
-git submodule update
-```
+* R/hirlite.R
+* src/subscribe.c
 
 ## Meta
 
 * Please [report any issues or bugs](https://github.com/ropensci/rrlite/issues).
-* License: BSD (2 clause)
+* License: GPL
 * Get citation information for `rrlite` in R by doing `citation(package = 'rrlite')`
 
 [![rofooter](http://ropensci.org/public_images/github_footer.png)](http://ropensci.org)

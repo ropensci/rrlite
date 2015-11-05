@@ -34,7 +34,8 @@ check_all:
 	REMAKE_TEST_INSTALL_PACKAGES=true make check
 
 clean:
-	make -C src/rlite/src clean
+	-make -C src/rlite/src clean
+	make -C src/rlite/deps/lua/src clean
 	rm -f src/*.o src/*.so
 
 vignettes/rrlite.Rmd: vignettes/src/rrlite.R

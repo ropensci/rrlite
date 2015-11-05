@@ -1,3 +1,4 @@
+// Automatically generated from redux:src/connection.h: do not edit by hand
 #include <R.h>
 #include <Rinternals.h>
 #include <hirlite.h>

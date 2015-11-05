@@ -1,7 +1,8 @@
+## Automatically generated from redux:tests/testthat/test-redis.R: do not edit by hand
 context("rlite")
 
 test_that("connection", {
-  ptr <- rlite_connect_unix(":memory:")
+  ptr <- rlite_connect_tcp(":memory:", 6379L)
   ## Dangerous raw pointer:
   expect_that(ptr, is_a("externalptr"))
   ## Check for no crash:
@@ -10,7 +11,7 @@ test_that("connection", {
 })
 
 test_that("simple commands", {
-  ptr <- rlite_connect_unix(":memory:")
+  ptr <- rlite_connect_tcp(":memory:", 6379L)
 
   ans <- rlite_command(ptr, list("PING"))
   expect_that(ans, is_a("redis_status"))
@@ -39,7 +40,7 @@ test_that("simple commands", {
 })
 
 test_that("commands with arguments", {
-  ptr <- rlite_connect_unix(":memory:")
+  ptr <- rlite_connect_tcp(":memory:", 6379L)
 
   expect_that(rlite_command(ptr, list("SET", "foo", "1")), is_OK())
   expect_that(rlite_command(ptr, list("SET", "foo", "1")), is_OK())
@@ -48,7 +49,7 @@ test_that("commands with arguments", {
 })
 
 test_that("commands with NULL arguments", {
-  ptr <- rlite_connect_unix(":memory:")
+  ptr <- rlite_connect_tcp(":memory:", 6379L)
 
   expect_that(rlite_command(ptr, list("SET", "foo", "1", NULL)), is_OK())
   expect_that(rlite_command(ptr, list("SET", "foo", NULL, "1", NULL)),
@@ -58,14 +59,14 @@ test_that("commands with NULL arguments", {
 })
 
 test_that("missing values are NULL", {
-  ptr <- rlite_connect_unix(":memory:")
+  ptr <- rlite_connect_tcp(":memory:", 6379L)
   key <- rand_str(prefix="redux_")
   expect_that(rlite_command(ptr, list("GET", key)),
               is_null())
 })
 
 test_that("Errors are converted", {
-  ptr <- rlite_connect_unix(":memory:")
+  ptr <- rlite_connect_tcp(":memory:", 6379L)
   key <- rand_str(prefix="redux_")
   on.exit(rlite_command(ptr, c("DEL", key)))
   ## Conversion to integer:
@@ -83,7 +84,7 @@ test_that("Errors are converted", {
 ## keeping them protected appropriately.  So for now the automatically
 ## balanced approach is easiest.
 test_that("Pipelining", {
-  ptr <- rlite_connect_unix(":memory:")
+  ptr <- rlite_connect_tcp(":memory:", 6379L)
   key <- rand_str(prefix="redux_")
   cmd <- list(list("SET", key, "1"), list("GET", key))
   on.exit(rlite_command(ptr, c("DEL", key)))
@@ -105,7 +106,7 @@ test_that("Pipelining", {
 
 ## Storing binary data:
 test_that("Binary data", {
-  ptr <- rlite_connect_unix(":memory:")
+  ptr <- rlite_connect_tcp(":memory:", 6379L)
   data <- serialize(1:5, NULL)
   key <- rand_str(prefix="redux_")
   expect_that(rlite_command(ptr, list("SET", key, data)),
@@ -125,7 +126,7 @@ test_that("Binary data", {
 })
 
 test_that("Lists of binary data", {
-  ptr <- rlite_connect_unix(":memory:")
+  ptr <- rlite_connect_tcp(":memory:", 6379L)
   data <- serialize(1:5, NULL)
   key1 <- rand_str(prefix="redux_")
   key2 <- rand_str(prefix="redux_")
@@ -145,35 +146,12 @@ test_that("Lists of binary data", {
     throws_error("Nested list element"))
 })
 
-test_that("socket connection", {
-  skip("not relevant")
-  redis_server <- Sys.which("redis-server")
-  if (redis_server == "") {
-    skip("didn't find redis server")
-  }
-  logfile <- tempfile("redis_")
-  socket <- tempfile("socket_")
-  system2(redis_server, c("--port", 0, "--unixsocket", socket),
-          wait=FALSE, stdout=logfile, stderr=logfile)
-  Sys.sleep(.1)
-
-  ptr_sock <- redis_connect_unix(socket)
-  ptr_tcp  <- rlite_connect_unix(":memory:")
-  cmp <- redis_status("PONG")
-  expect_that(rlite_command(ptr_sock, list("PING")), equals(cmp))
-  expect_that(rlite_command(ptr_tcp,  list("PING")), equals(cmp))
-
-  expect_that(rlite_command(ptr_sock, "SHUTDOWN"),
-              throws_error("Failure communicating with the Redis server"))
-  expect_that(file.exists(socket), is_false())
-})
-
 test_that("pointer commands are safe", {
   expect_that(rlite_command(NULL, "PING"),
               throws_error("Expected an external pointer"))
   expect_that(rlite_command(list(), "PING"),
               throws_error("Expected an external pointer"))
-  ptr <- rlite_connect_unix(":memory:")
+  ptr <- rlite_connect_tcp(":memory:", 6379L)
   expect_that(rlite_command(list(ptr), "PING"),
               throws_error("Expected an external pointer"))
 

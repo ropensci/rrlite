@@ -1,3 +1,4 @@
+// Automatically generated from redux:src/connection.c: do not edit by hand
 #include "connection.h"
 #include "conversions.h"
 

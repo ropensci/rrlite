@@ -1,9 +1,11 @@
-context("main entry points")
+## Automatically generated from redux:tests/testthat/test-connection.R: do not edit by hand
+context("connection")
 
 test_that("rlite_connection", {
   con <- rlite_connection()
   expect_that(setequal(names(con),
-                       c("config", "reconnect", "command", "pipeline")),
+                       c("config", "reconnect", "command",
+                         "pipeline", "subscribe")),
               is_true())
   expect_that(con$command("PING"), equals(redis_status("PONG")))
 
