@@ -11,7 +11,7 @@ Description: R bindings to rlite.  rlite is a "self-contained,
 Depends: R (>= 3.1.0)
 License: GPL-2
 LazyData: true
-Suggests: testthat, knitr, RcppRedis
-Imports: R6, RedisAPI (>= 0.3.0)
+Suggests: knitr, redux, testthat
+Imports: RedisAPI (>= 0.3.0)
 VignetteBuilder: knitr
 SystemRequirements: GNU make

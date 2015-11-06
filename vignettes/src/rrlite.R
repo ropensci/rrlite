@@ -46,13 +46,9 @@ r2 <- redux::hiredis()
 r2$PING()
 
 ## All the commands are the same (though rlite does not support all commands).
-
-
-; in fact the only way of telling if
-## you have an `rlite` or an `Redis` based interface (currently) is to
-## inspect the `config` member:
-class(r1$config)
-class(r2$config)
+## It's (currently) quite difficult to tell if the database is Redis or rlite, though you can inspect the `config` member:
+class(r1$config())
+class(r2$config())
 
 ## So, things like this work:
 

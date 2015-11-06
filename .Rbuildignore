@@ -13,7 +13,9 @@ tests/testthat/test.rld
 ^README\.Rmd$
 ^Rprof\.out$
 ^tmp$
-^src/rlite/deps/lua/src/.*\.o$
-^src/rlite/deps/lua/src/lua$
-^src/rlite/deps/lua/src/luac$
+^src/rlite/deps/lua/src/.*\.[ao]$
+^src/rlite/deps/lua/src/luac?$
 ^src/rlite/src/libhirlite\.so$
+^src/rlite/src/.*\.[ao]$
+^generate.R$
+^update_rlite$

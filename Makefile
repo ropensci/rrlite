@@ -30,9 +30,6 @@ check: build
 	@rm -f `ls -1tr ${PACKAGE}*gz | tail -n1`
 	@rm -rf ${PACKAGE}.Rcheck
 
-check_all:
-	REMAKE_TEST_INSTALL_PACKAGES=true make check
-
 clean:
 	-make -C src/rlite/src clean
 	make -C src/rlite/deps/lua/src clean

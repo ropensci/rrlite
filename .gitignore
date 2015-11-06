@@ -10,3 +10,5 @@ docker/
 inst/doc
 *.rld
 Rprof.out
+rrlite.Rcheck
+rrlite_*.tar.gz

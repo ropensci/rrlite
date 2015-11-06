@@ -2,27 +2,31 @@
 % Please edit documentation in R/hirlite.R
 \name{hirlite}
 \alias{hirlite}
+\alias{rlite_available}
 \title{Interface to rlite}
 \usage{
 hirlite(...)
+
+rlite_available(...)
 }
 \arguments{
 \item{...}{Named configuration options passed to
   \code{\link{redis_config}}, used to create the environment
   (notable keys include \code{host}, \code{port}, and the
-  environment variable \code{REDIS_URL})}
+  environment variable \code{REDIS_URL}).  In addition to the
+  \code{RedisAPI} treatment of the configuration, \code{RLITE_URL}
+  takes precendence over \code{REDIS_URL}, and a host of
+  \code{localhost} or \code{127.0.0.1} will be treated as an
+  in-memory database (\code{:memory:}).}
 }
 \description{
 Create an interface to rlite, with a generated interface to all
 rlite commands (using \code{RedisAPI}).
 }
 \examples{
-# Only run if a Redis server is running
-if (redis_available()) {
-  r <- hirlite()
-  r$PING()
-  r$SET("foo", "bar")
-  r$GET("foo")
-}
+r <- hirlite(":memory:")
+r$PING()
+r$SET("foo", "bar")
+r$GET("foo")
 }
 
