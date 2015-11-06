@@ -1,6 +1,6 @@
 Package: rrlite
 Title: R Bindings to rlite
-Version: 0.2.0
+Version: 0.3.0
 Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
                     email = "rich.fitzjohn@gmail.com"),
              person("Sebastian", "Waisbrot", role = "cph"),

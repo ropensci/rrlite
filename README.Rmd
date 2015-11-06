@@ -9,16 +9,7 @@ This package is designed to be used as a driver for [`RedisAPI`](https://github.
 
 # Usage
 
-See [`RedisAPI`](https://github.com/ropensci/RedisAPI) for more details.  The main function here is `rrlite::hirlite` that creates a `redis_api` object that exposes the full Redis API, or for use with `RedisAPI::rdb`.  Some low level `rlite` support is available with `rrlite::rlite_context`.
-
-## High level (rdb)
-
-```{r}
-r <- RedisAPI::rdb(rrlite::hirlite)
-r$set("foo", runif(20))
-r$get("foo")
-r$keys()
-```
+See [`RedisAPI`](https://github.com/ropensci/RedisAPI) and  [`redux`](https://github.com/richfitz/redux) for more details.  The main function here is `rrlite::hirlite` that creates a `redis_api` object that exposes the full Redis API, or for use with `RedisAPI::rdb`.
 
 ## Redis level
 
@@ -31,28 +22,12 @@ db$GET("foo")
 db$KEYS("*")
 ```
 
-## Low level
-
-```{r}
-con <- rrlite::rlite_context(":memory:")
-con$run(c("set", "foo", "bar"))
-```
-
-All commands supported by `rlite`, with no error checking.
-
-Asynchronous support via
-
-```
-con$write(c("set", "foo", "bar"))
-con$read()
-```
-
 # Approach
 
-This package aims to be a drop-in self-contained replacement for `redux` without requiring  `Redis` server.  So as much of the package as possible is automaticaly generated from `redux` as possible.  The only installed files not generated are:
+This package aims to be a drop-in self-contained replacement for `redux` without requiring  `Redis` server.  Therefore almost the entire package (and tests) is automaticaly generated from `redux`.  The only installed files not generated are:
 
-* R/hirlite.R
-* src/subscribe.c
+* R/hirlite.R (because documentation)
+* src/subscribe.c (just a stub)
 
 ## Meta
 
