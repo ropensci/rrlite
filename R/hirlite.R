@@ -14,7 +14,7 @@
 ##' @export
 ##' @importFrom RedisAPI redis_api
 ##' @examples
-##' r <- hirlite(":memory:")
+##' r <- hirlite()
 ##' r$PING()
 ##' r$SET("foo", "bar")
 ##' r$GET("foo")

@@ -24,7 +24,7 @@ Create an interface to rlite, with a generated interface to all
 rlite commands (using \code{RedisAPI}).
 }
 \examples{
-r <- hirlite(":memory:")
+r <- hirlite()
 r$PING()
 r$SET("foo", "bar")
 r$GET("foo")
