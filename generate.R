@@ -88,7 +88,7 @@ change_r <- c("redux_redis"="rrlite_rlite",
               "Redis connection"="rlite connection",
               "RedisAPI::redis_config"="rlite_config",
               "redis_config"="rlite_config",
-              '"redux"'='"rlite"')
+              '"redux"'='"rrlite"')
 
 files_t <- c("helper-common.R",
              "test-aaa.R",

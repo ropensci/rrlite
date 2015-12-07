@@ -80,7 +80,7 @@ rlite_connection <- function(config=rlite_config()) {
       subscribe=function(channel, pattern, callback, envir=parent.frame()) {
         redis_subscribe(ptr, channel, pattern, callback, envir)
       })
-  attr(ret, "type") <- "rlite"
+  attr(ret, "type") <- "rrlite"
   class(ret) <- "rlite_connection"
   ret
 }
