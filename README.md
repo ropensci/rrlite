@@ -3,22 +3,56 @@
 [![Build Status](https://travis-ci.org/ropensci/rrlite.png?branch=master)](https://travis-ci.org/ropensci/rrlite)
 [![Coverage Status](https://coveralls.io/repos/ropensci/rrlite/badge.svg?branch=master)](https://coveralls.io/r/ropensci/rrlite?branch=master)
 
-R interface to [rlite](https://github.com/seppo0010/rlite).  rlite is a "self-contained, serverless, zero-configuration, transactional redis-compatible database engine. rlite is to Redis what SQLite is to SQL.
 
-This package is designed to be used as a driver for [`RedisAPI`](https://github.com/ropensci/RedisAPI), providing only the glue code to make this work.
+
+R interface to [rlite](https://github.com/seppo0010/rlite).  rlite is a "self-contained, serverless, zero-configuration, transactional redis-compatible database engine. rlite is to Redis what SQLite is to SQL.  And `Redis` is a *data structures* server; at the simplest level it can be used as a key-value store, but it can store other data types (hashes, lists, sets and more).
+
+This package is designed to be used with [RedisAPI](https://github.com/ropensci/RedisAPI) and follow exactly the same interface as [redux](https://github.com/richfitz/redux).
 
 # Usage
 
-See [`RedisAPI`](https://github.com/ropensci/RedisAPI) and  [`redux`](https://github.com/richfitz/redux) for more details.  The main function here is `rrlite::hirlite` that creates a `redis_api` object that exposes the full Redis API, or for use with `RedisAPI::rdb`.
+See [`RedisAPI`](https://github.com/ropensci/RedisAPI) and  [`redux`](https://github.com/richfitz/redux) for more details.
 
-## Redis level
-
-Provides a reasonably complete interface to raw redis commands:
+The main function here is `rrlite::hirlite` that creates a `redis_api` object that exposes the full Redis API, or for use with `RedisAPI::rdb`.
 
 
 ```r
-db <- rrlite::hirlite(":memory:")
-db$SET("foo", "bar")
+con <- rrlite::hirlite()
+```
+
+
+```r
+con
+```
+
+```
+## <redis_api>
+##   Redis commands:
+##     APPEND: function
+##     AUTH: function
+##     BGREWRITEAOF: function
+##     BGSAVE: function
+##     ...
+##     ZSCORE: function
+##     ZUNIONSTORE: function
+##   Other public methods:
+##     clone: function
+##     command: function
+##     config: function
+##     initialize: function
+##     pipeline: function
+##     reconnect: function
+##     subscribe: function
+##     type: function
+```
+
+This object has all the same methods as the corresponding object created by `redux::hiredis()` but operating on a rlite database.  The default database uses the magic path `:memory:` but persistent on-disk storage is possible (see `?rlite_config`).
+
+All the usual Redis-type things work:
+
+
+```r
+con$SET("mykey", "mydata")
 ```
 
 ```
@@ -26,20 +60,37 @@ db$SET("foo", "bar")
 ```
 
 ```r
-db$GET("foo")
+con$GET("mykey")
 ```
 
 ```
-## [1] "bar"
+## [1] "mydata"
+```
+
+As with redux, commands are vectorised:
+
+
+```r
+con$MSET(c("a", "b", "c"), c(1, 2, 3))
+```
+
+```
+## [Redis: OK]
 ```
 
 ```r
-db$KEYS("*")
+con$MGET(c("a", "b", "c"))
 ```
 
 ```
 ## [[1]]
-## [1] "foo"
+## [1] "1"
+##
+## [[2]]
+## [1] "2"
+##
+## [[3]]
+## [1] "3"
 ```
 
 # Approach
