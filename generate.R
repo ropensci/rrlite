@@ -36,7 +36,7 @@ tr <- function(str, change) {
   from <- names(change)
   to <- unname(change)
   for (i in seq_along(change)) {
-    str <- gsub(from[[i]], to[[i]], str, fixed=TRUE)
+    str <- gsub(from[[i]], to[[i]], str, perl=TRUE)
   }
   str
 }
@@ -57,7 +57,7 @@ files_c <- c("connection.c",
              "conversions.h",
              "registration.c",
              "subscribe.h")
-change_c <- c("hiredis.h"="hirlite.h",
+change_c <- c("hiredis\\.h"="hirlite.h",
               "redisReply"="rliteReply",
               "REDIS_REPLY"="RLITE_REPLY",
               "redisFree"="rliteFree",
@@ -76,11 +76,11 @@ for (i in files_c) {
 ## tests (R code):
 ## Slightly different complicated changes for the tests
 change_r <- c("redux_redis"="rrlite_rlite",
-              "redis_connect"="rlite_connect",
+              "(?<! <- \")redis_connect"="rlite_connect",
               "redis_command"="rlite_command",
               "redis_pipeline"="rlite_pipeline",
               '"hiredis"'='"rlite"',
-              "127.0.0.1"=":memory:",
+              "127\\.0\\.0\\.1"=":memory:",
               "hiredis"="hirlite",
               "skip_if_no_redis"="skip_if_no_rlite",
               "redis_available"="rlite_available",
@@ -94,7 +94,6 @@ files_t <- c("helper-common.R",
              "test-aaa.R",
              "test-connection.R",
              "test-interface.R",
-             "test-objects.R",
              "test-redis.R",
              "test-tools.R")
 for (i in files_t) {
