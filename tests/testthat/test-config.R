@@ -45,3 +45,19 @@ test_that("environment", {
   Sys.unsetenv("RLITE_URL")
   expect_that(rlite_config()$host, equals(":memory:"))
 })
+
+test_that("path handling", {
+  path <- tempfile()
+  x <- rlite_config(path=path)
+  expect_identical(x$path, path)
+  expect_identical(x$scheme, "unix")
+  expect_null(x$host)
+  expect_null(x$port)
+
+  ## Check that this config works correctly:
+  con <- hirlite(x)
+  expect_identical(con$config()$path, path)
+  con$SET("foo", "bar")
+  expect_identical(con$GET("foo"), "bar")
+  expect_identical(hirlite(x)$GET("foo"), "bar")
+})
