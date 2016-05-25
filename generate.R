@@ -57,7 +57,7 @@ files_c <- c("connection.c",
              "conversions.h",
              "registration.c",
              "subscribe.h")
-change_c <- c("hiredis\\.h"="hirlite.h",
+change_c <- c("hiredis/hiredis\\.h"="hirlite.h",
               "redisReply"="rliteReply",
               "REDIS_REPLY"="RLITE_REPLY",
               "redisFree"="rliteFree",
