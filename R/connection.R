@@ -1,8 +1,8 @@
 ## Automatically generated from redux:R/connection.R: do not edit by hand
 ##' Create a rlite connection.  This function is designed to be used
 ##' in other packages, and not directly by end-users.  However, it is
-##' possible and safe to use.  See the \code{RedisAPI} package for a
-##' complete example.
+##' possible and safe to use.  See the \code{\link{hirlite}} package
+##' for the user friendly interface.
 ##'
 ##' This function creates a list of functions, appropriately bound to
 ##' a pointer to a rlite connection.  This is designed for package

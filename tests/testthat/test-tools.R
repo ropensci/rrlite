@@ -6,11 +6,11 @@ test_that("parse_info", {
   skip_if_no_rlite()
   con <- hirlite()
   skip_if_no_info(con)
-  info <- RedisAPI::redis_info(con)
+  info <- redis_info(con)
   expect_is(info, "list")
   dat <- con$INFO()
-  expect_is(RedisAPI::parse_info(dat), "list")
-  expect_equal(RedisAPI::redis_version(con), info$redis_version)
+  expect_is(parse_info(dat), "list")
+  expect_equal(redis_version(con), info$redis_version)
 })
 
 ## TODO: not totally clear how this should interact with pipeline; I
@@ -22,14 +22,14 @@ test_that("redis_multi", {
   id <- rand_str()
   on.exit(con$DEL(id))
   con$DEL(id)
-  ok <- RedisAPI::redis_multi(con, {
+  ok <- redis_multi(con, {
     con$INCR(id)
     con$INCR(id)
   })
   expect_equal(ok, list(1, 2))
 
   ## If we get an error, things do *not* get evaluated:
-  err <- try(RedisAPI::redis_multi(con, {
+  err <- try(redis_multi(con, {
     con$INCR(id)
     con$INCR(id)
     stop("abort")
@@ -42,7 +42,6 @@ test_that("redis_multi", {
 
 test_that("from_redis_hash", {
   skip_if_no_rlite()
-  from_redis_hash <- RedisAPI::from_redis_hash
   con <- hirlite()
 
   key <- digest::digest(Sys.time())
@@ -75,8 +74,8 @@ test_that("redis_time", {
   con <- hirlite()
   skip_if_no_time(con)
 
-  expect_is(RedisAPI::redis_time(con), "character")
-  expect_is(RedisAPI::redis_time_to_r(RedisAPI::redis_time(con)), "POSIXt")
+  expect_is(redis_time(con), "character")
+  expect_is(redis_time_to_r(redis_time(con)), "POSIXt")
 })
 
 ## This is just a really simple test that this works at all:
@@ -90,7 +89,7 @@ test_that("scripts", {
   redis.call("INCR", keyname)
   return redis.call("GET", keyname)'
 
-  obj <- RedisAPI::redis_scripts(r, set_and_incr=lua)
+  obj <- redis_scripts(r, set_and_incr=lua)
   r$DEL("foo")
   res <- obj("set_and_incr", "foo", "10")
   expect_equal(res, "11")

@@ -1,0 +1,10 @@
+redis_info <- redux::redis_info
+parse_info <- redux::parse_info
+redis_version <- redux::redis_version
+redis_multi <- redux::redis_multi
+from_redis_hash <- redux::from_redis_hash
+redis_time <- redux::redis_time
+redis_time_to_r <- redux::redis_time_to_r
+redis_scripts <- redux::redis_scripts
+object_to_bin <- redux::object_to_bin
+bin_to_object <- redux::bin_to_object

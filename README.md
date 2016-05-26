@@ -7,13 +7,13 @@
 
 R interface to [rlite](https://github.com/seppo0010/rlite).  rlite is a "self-contained, serverless, zero-configuration, transactional redis-compatible database engine. rlite is to Redis what SQLite is to SQL.  And `Redis` is a *data structures* server; at the simplest level it can be used as a key-value store, but it can store other data types (hashes, lists, sets and more).
 
-This package is designed to be used with [RedisAPI](https://github.com/ropensci/RedisAPI) and follow exactly the same interface as [redux](https://github.com/richfitz/redux).
+This package is designed to follow exactly the same interface as [redux](https://github.com/richfitz/redux).
 
 # Usage
 
-See [`RedisAPI`](https://github.com/ropensci/RedisAPI) and  [`redux`](https://github.com/richfitz/redux) for more details.
+See [`redux`](https://github.com/richfitz/redux) for more details.
 
-The main function here is `rrlite::hirlite` that creates a `redis_api` object that exposes the full Redis API, or for use with `RedisAPI::rdb`.
+The main function here is `rrlite::hirlite` that creates a `redis_api` object that exposes the full Redis API.
 
 
 ```r

@@ -86,7 +86,7 @@ change_r <- c("redux_redis"="rrlite_rlite",
               "redis_available"="rlite_available",
               "useDynLib redux"="useDynLib rrlite",
               "Redis connection"="rlite connection",
-              "RedisAPI::redis_config"="rlite_config",
+              "redux::redis_config"="rlite_config",
               "redis_config"="rlite_config",
               '"redux"'='"rrlite"')
 

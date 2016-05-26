@@ -31,7 +31,7 @@ rlite_config <- function(...) {
     }
     Sys.setenv(REDIS_URL=Sys.getenv("RLITE_URL"))
   }
-  config <- RedisAPI::redis_config(...)
+  config <- redux::redis_config(...)
   if (!is.null(config$host) && config$host %in% c("localhost", "127.0.0.1")) {
     config$host <- ":memory:"
   }

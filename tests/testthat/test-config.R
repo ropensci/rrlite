@@ -15,7 +15,7 @@ test_that("defaults", {
 })
 
 test_that("redis config -> rlite config", {
-  x <- RedisAPI::redis_config()
+  x <- redux::redis_config()
   y <- rlite_config(x)
   expect_equal(x$host, "127.0.0.1")
   expect_equal(y$host, ":memory:")

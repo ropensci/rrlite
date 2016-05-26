@@ -6,11 +6,15 @@ Authors@R: c(person("Rich", "FitzJohn", role = c("aut", "cre"),
              person("Sebastian", "Waisbrot", role = "cph"),
              person("Lua.org", "PUC-Rio", role = "cph"))
 Description: R bindings to rlite.  rlite is a "self-contained,
-  serverless, zero-configuration, transactional redis-compatible
-  database engine. rlite is to Redis what SQLite is to SQL.".
-Depends: R (>= 3.1.0)
+    serverless, zero-configuration, transactional redis-compatible
+    database engine. rlite is to Redis what SQLite is to SQL.".
+Depends:
+    R (>= 3.1.0)
 License: GPL-2
 LazyData: true
-Suggests: testthat
-Imports: RedisAPI (>= 0.4.0)
+Suggests:
+    testthat
+Imports:
+    redux (>= 0.5.0)
 SystemRequirements: GNU make
+RoxygenNote: 5.0.1
