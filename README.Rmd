@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/ropensci/rrlite.png?branch=master)](https://travis-ci.org/ropensci/rrlite)
 [![Coverage Status](https://coveralls.io/repos/ropensci/rrlite/badge.svg?branch=master)](https://coveralls.io/r/ropensci/rrlite?branch=master)
+[![](https://badges.ropensci.org/6_status.svg)](https://github.com/ropensci/onboarding/issues/6)
 
 ```{r, echo=FALSE, results="hide"}
 knitr::opts_chunk$set(error=FALSE)
